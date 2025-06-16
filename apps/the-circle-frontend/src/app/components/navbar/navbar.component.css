@@ -1,0 +1,7 @@
+nav a {
+  transition: all 0.2s ease-in-out;
+}
+
+nav a:hover {
+  color: #2563eb; /* Tailwind blue-600 */
+}
