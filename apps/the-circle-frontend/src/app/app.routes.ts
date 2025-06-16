@@ -13,6 +13,12 @@ export const appRoutes: Route[] = [
       {
     path: 'dashboard',
     component: DashboardComponent
-  }
+  },
+  {
+    path: 'streaming',
+    component: StreamingComponent
+  },
+  
+  { path: "about", pathMatch: "full", component: AuthRegisterComponent },
 
 ];
