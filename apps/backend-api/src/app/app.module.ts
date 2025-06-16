@@ -1,6 +1,7 @@
 import { Module, Logger } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 // Je kunt hier ook je eigen config gebruiken via dotenv of environment.ts
 const MONGO_DB_CONNECTION_STRING = 'mongodb://localhost:27017/the-circle';
@@ -19,6 +20,7 @@ const MONGO_DB_CONNECTION_STRING = 'mongodb://localhost:27017/the-circle';
       },
     }),
     UserModule,
+    AuthModule
   ],
 })
 export class AppModule {}
