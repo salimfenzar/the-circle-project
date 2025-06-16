@@ -4,7 +4,6 @@ import { AppComponent } from './app/app.component';
 import { enableProdMode } from '@angular/core';
 
 
-
 bootstrapApplication(AppComponent, appConfig).catch((err) =>
     console.error(err)
 );
