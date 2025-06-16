@@ -1,30 +1,24 @@
-import { Module } from '@nestjs/common';
-import { BackendFeaturesMealModule } from '@avans-nx-workshop/backend/features';
-import { UsersModule } from '@avans-nx-workshop/backend/user';
-import { AuthModule } from '@avans-nx-workshop/backend/auth';
+import { Module, Logger } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { environment } from '@avans-nx-workshop/shared/util-env';
-import { Logger } from '@nestjs/common';
+import { UserModule } from './user/user.module';
+
+// Je kunt hier ook je eigen config gebruiken via dotenv of environment.ts
+const MONGO_DB_CONNECTION_STRING = 'mongodb://localhost:27017/the-circle';
 
 @Module({
-    imports: [
-        BackendFeaturesMealModule,
-        AuthModule,
-        MongooseModule.forRoot(environment.MONGO_DB_CONNECTION_STRING, {
-            connectionFactory: (connection) => {
-                connection.on('connected', () => {
-                    // console.log('is connected');
-                    Logger.verbose(
-                        `Mongoose db connected to ${environment.MONGO_DB_CONNECTION_STRING}`
-                    );
-                });
-                connection._events.connected();
-                return connection;
-            }
-        }),
-        UsersModule
-    ],
-    controllers: [],
-    providers: []
+  imports: [
+    MongooseModule.forRoot(MONGO_DB_CONNECTION_STRING, {
+      connectionFactory: (connection) => {
+        connection.on('connected', () => {
+          Logger.verbose(`✅ Mongoose connected to ${MONGO_DB_CONNECTION_STRING}`, 'MongoDB');
+        });
+        connection.on('error', (err) => {
+          Logger.error(`❌ Mongoose connection error: ${err}`, 'MongoDB');
+        });
+        return connection;
+      },
+    }),
+    UserModule,
+  ],
 })
 export class AppModule {}
