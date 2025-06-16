@@ -22,11 +22,11 @@
             "@avans-nx-workshop/backend/features": [
                 "libs/backend/features/src/index.ts"
             ],
-            "@avans-nx-workshop/backend/user": [
-                "libs/backend/user/src/index.ts"
-            ],
             "@avans-nx-workshop/backend/neo4j": [
                 "libs/backend/neo4j/src/index.ts"
+            ],
+            "@avans-nx-workshop/backend/user": [
+                "libs/backend/user/src/index.ts"
             ],
             "@avans-nx-workshop/share-a-meal/auth": [
                 "libs/share-a-meal/auth/src/index.ts"
