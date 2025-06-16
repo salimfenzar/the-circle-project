@@ -10,20 +10,9 @@ async function bootstrap() {
     origin: '*', // voor dev, later strakker maken
   });
 
-  // ✅ Swagger configuratie
-  const config = new DocumentBuilder()
-    .setTitle('The Circle API')
-    .setDescription('TruYou + SeeChange backend API')
-    .setVersion('1.0')
-    .addTag('users')
-    .build();
-
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
 
   // ✅ Eventueel loggen naar console
   await app.listen(3000);
   console.log(`🚀 The Circle API is running at http://localhost:3000`);
-  console.log(`📚 Swagger is available at http://localhost:3000/api`);
 }
 bootstrap();
