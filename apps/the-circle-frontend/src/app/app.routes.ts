@@ -1,5 +1,6 @@
 import { Route } from '@angular/router';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { AuthRegisterComponent } from './components/auth/auth-register.component';
 
 
 export const appRoutes: Route[] = [
@@ -11,6 +12,8 @@ export const appRoutes: Route[] = [
       {
     path: 'dashboard',
     component: DashboardComponent
-  }
+  },
+  
+  { path: "about", pathMatch: "full", component: AuthRegisterComponent },
 
 ];

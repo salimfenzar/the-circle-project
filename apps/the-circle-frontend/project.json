@@ -19,7 +19,10 @@
                     "apps/the-circle-frontend/src/favicon.ico",
                     "apps/the-circle-frontend/src/assets"
                 ],
-                "styles": ["apps/the-circle-frontend/src/styles.css"],
+                "styles": [
+                    "node_modules/bootstrap/dist/css/bootstrap.min.css",
+                    "apps/the-circle-frontend/src/styles.css"
+                ],
                 "scripts": []
             },
             "configurations": {
@@ -36,13 +39,7 @@
                             "maximumError": "4kb"
                         }
                     ],
-                    "outputHashing": "all",
-                    "fileReplacements": [
-                        {
-                            "replace": "libs/shared/util-env/src/lib/environment.ts",
-                            "with": "libs/shared/util-env/src/lib/environment.production.ts"
-                        }
-                    ]
+                    "outputHashing": "all"
                 },
                 "development": {
                     "buildOptimizer": false,
@@ -50,21 +47,9 @@
                     "vendorChunk": true,
                     "extractLicenses": false,
                     "sourceMap": true,
-                    "namedChunks": true,
-                    "fileReplacements": [
-                        {
-                            "replace": "libs/shared/util-env/src/lib/environment.ts",
-                            "with": "libs/shared/util-env/src/lib/environment.development.ts"
-                        }
-                    ]
+                    "namedChunks": true
                 },
                 "render": {
-                    "fileReplacements": [
-                        {
-                            "replace": "libs/shared/util-env/src/lib/environment.ts",
-                            "with": "libs/shared/util-env/src/lib/environment.render.ts"
-                        }
-                    ]
                 }
             },
             "defaultConfiguration": "production"
