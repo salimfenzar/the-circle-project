@@ -6,25 +6,25 @@ import { Stream } from './schemas/stream.schema';
 
 @Controller('streams')
 export class StreamController {
-  constructor(private readonly streamService: StreamService) {}
+    constructor(private readonly streamService: StreamService) {}
 
-  @Post()
-  async create(@Body() dto: CreateStreamDto): Promise<Stream> {
-    return this.streamService.create(dto);
-  }
+    @Post()
+    async create(@Body() dto: CreateStreamDto): Promise<Stream> {
+        return this.streamService.create(dto);
+    }
 
-  @Get()
-  async findAll(): Promise<Stream[]> {
-    return this.streamService.findAll();
-  }
+    @Get()
+    async findAll(): Promise<Stream[]> {
+        return this.streamService.findAll();
+    }
 
-  @Get('active')
-  async findActive(): Promise<Stream[]> {
-    return this.streamService.findActive();
-  }
+    @Get('active')
+    async findActive(): Promise<Stream[]> {
+        return this.streamService.findActive();
+    }
 
-  @Get(':id')
-  async findById(@Param('id') id: string): Promise<Stream | null> {
-    return this.streamService.findById(id);
-  }
+    @Get(':id')
+    async findById(@Param('id') id: string): Promise<Stream | null> {
+        return this.streamService.findById(id);
+    }
 }

@@ -25,5 +25,13 @@ export const appRoutes: Route[] = [
             import('./components/auth/auth-register.component').then(
                 (m) => m.AuthRegisterComponent
             )
+    },
+
+    {
+        path: 'active-streamers',
+        loadComponent: () =>
+            import(
+                './components/active-streamers/active-streamers.component'
+            ).then((m) => m.ActiveStreamersComponent)
     }
 ];
