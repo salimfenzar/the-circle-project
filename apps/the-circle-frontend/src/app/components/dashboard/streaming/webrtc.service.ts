@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
 
 export class WebRTCService {
-  private socket = io('http://145.49.8.135:3100'); // your backend signaling server port
+  private socket = io('http://145.49.8.246:3100'); // your backend signaling server port
 
   private peerConnection!: RTCPeerConnection;
   onRemoteStreamCallback?: (stream: MediaStream) => void;
@@ -42,7 +42,16 @@ export class WebRTCService {
   async initLocalStream(isCaller: boolean): Promise<MediaStream | null> {
     this.isCaller = isCaller;
     if (isCaller) {
-      this.localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      this.localStream = await navigator.mediaDevices.getUserMedia({
+  video: {
+    width: { ideal: 1280 },
+    height: { ideal: 720 },
+    frameRate: { ideal: 30 }
+  },
+  audio: true
+});
+console.log(this.localStream.getVideoTracks()[0].getSettings()); //settigns van de video track
+
       this.socket.emit('start-broadcast');
       return this.localStream;
     } else {

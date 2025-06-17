@@ -15,25 +15,29 @@ export class StreamingComponent implements AfterViewInit {
   @ViewChild('localVideo') localVideo!: ElementRef<HTMLVideoElement>;
   @ViewChild('remoteVideo') remoteVideo!: ElementRef<HTMLVideoElement>;
 
+  showLocal = false;
+  showRemote = false;
+
   private webrtc = inject(WebRTCService);
-
+  
   async start(isCaller: boolean) {
-    // Initialize the local stream (only if broadcaster)
-    const localStream = await this.webrtc.initLocalStream(isCaller);
-    console.log('Local stream initialized:', isCaller);
+  this.showLocal = isCaller;
+  this.showRemote = !isCaller;
 
-    if (localStream) {
-      this.localVideo.nativeElement.srcObject = localStream;
-    } else {
-      this.localVideo.nativeElement.srcObject = null;
-    }
+  await new Promise((resolve) => setTimeout(resolve)); // DOM laten updaten (optioneel)
 
-    // Start WebRTC connection
-    await this.webrtc.startConnection();
+  const localStream = await this.webrtc.initLocalStream(isCaller);
 
-    // Assign the remote stream to the remote video element
+  if (localStream && this.localVideo?.nativeElement) {
+    this.localVideo.nativeElement.srcObject = localStream;
+  }
+
+  await this.webrtc.startConnection();
+
+  if (this.remoteVideo?.nativeElement) {
     this.remoteVideo.nativeElement.srcObject = this.webrtc.remoteStream;
   }
+}
   
   ngAfterViewInit() {
     this.webrtc.onRemoteStreamCallback = (stream) => {
