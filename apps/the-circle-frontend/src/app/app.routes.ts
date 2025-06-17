@@ -32,4 +32,11 @@ export const appRoutes: Route[] = [
         path: 'login',
         component: AuthLoginComponent
     },
+    {
+        path: 'active-streamers',
+        loadComponent: () =>
+            import(
+                './components/active-streamers/active-streamers.component'
+            ).then((m) => m.ActiveStreamersComponent)
+    }
 ];
