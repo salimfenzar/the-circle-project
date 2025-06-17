@@ -8,21 +8,27 @@ import { StreamModule } from './stream/stream.module';
 const MONGO_DB_CONNECTION_STRING = 'mongodb://localhost:27017/the-circle';
 
 @Module({
-  imports: [
-    MongooseModule.forRoot(MONGO_DB_CONNECTION_STRING, {
-      connectionFactory: (connection) => {
-        connection.on('connected', () => {
-          Logger.verbose(`✅ Mongoose connected to ${MONGO_DB_CONNECTION_STRING}`, 'MongoDB');
-        });
-        connection.on('error', (err) => {
-          Logger.error(`❌ Mongoose connection error: ${err}`, 'MongoDB');
-        });
-        return connection;
-      },
-    }),
-    UserModule,
-    AuthModule,
-    StreamModule,
-  ],
+    imports: [
+        MongooseModule.forRoot(MONGO_DB_CONNECTION_STRING, {
+            connectionFactory: (connection) => {
+                connection.on('connected', () => {
+                    Logger.verbose(
+                        `✅ Mongoose connected to ${MONGO_DB_CONNECTION_STRING}`,
+                        'MongoDB'
+                    );
+                });
+                connection.on('error', (err) => {
+                    Logger.error(
+                        `❌ Mongoose connection error: ${err}`,
+                        'MongoDB'
+                    );
+                });
+                return connection;
+            }
+        }),
+        UserModule,
+        AuthModule,
+        StreamModule
+    ]
 })
 export class AppModule {}
