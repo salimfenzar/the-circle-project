@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { OnInit } from '@angular/core';
 import { initFlowbite } from 'flowbite';
 import { Router, RouterModule } from '@angular/router';
-import { NavbarComponent } from "./components/navbar/navbar.component";
+import { NavbarComponent } from './components/navbar/navbar.component';
 
 @Component({
     standalone: true,
@@ -11,7 +11,10 @@ import { NavbarComponent } from "./components/navbar/navbar.component";
     templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit {
-    constructor(private readonly router: Router) {}
+    constructor(private readonly router: Router) {
+        const routes = this.router.config;
+        console.log('📦 Geregistreerde routes:', routes);
+    }
 
     ngOnInit(): void {
         initFlowbite();
