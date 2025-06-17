@@ -14,6 +14,6 @@ export const appRoutes: Route[] = [
     component: DashboardComponent
   },
   
-  { path: "about", pathMatch: "full", component: AuthRegisterComponent },
+  { path: "register", pathMatch: "full", component: AuthRegisterComponent },
 
 ];
