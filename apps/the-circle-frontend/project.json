@@ -39,32 +39,18 @@
                             "maximumError": "4kb"
                         }
                     ],
-                    "outputHashing": "all"
-<<<<<<< HEAD
-
-=======
-            
->>>>>>> main
-                },
-                "development": {
-                    "buildOptimizer": false,
-                    "optimization": false,
-                    "vendorChunk": true,
-                    "extractLicenses": false,
-                    "sourceMap": true,
-                    "namedChunks": true
-<<<<<<< HEAD
-                },
-                "render": {
- 
-                
-=======
-
-                },
-                "render": {
-           
->>>>>>> main
-                }
+    "outputHashing": "all"
+},
+"development": {
+    "buildOptimizer": false,
+    "optimization": false,
+    "vendorChunk": true,
+    "extractLicenses": false,
+    "sourceMap": true,
+    "namedChunks": true
+},
+"render": {
+}
             },
             "defaultConfiguration": "production"
         },

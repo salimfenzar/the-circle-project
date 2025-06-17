@@ -6,14 +6,4 @@ import { Component } from '@angular/core';
   styleUrls: ['./navbar.component.css'],
    standalone: true,
 })
-<<<<<<< HEAD
 export class NavbarComponent {}
-=======
-export class NavbarComponent {
-   isMobileMenuOpen = false;
-
-  toggleMobileMenu() {
-    this.isMobileMenuOpen = !this.isMobileMenuOpen;
-  }
-}
->>>>>>> main
