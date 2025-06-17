@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -16,4 +17,12 @@
       text-decoration: none;
     }
   }
+=======
+nav a {
+  transition: all 0.2s ease-in-out;
+}
+
+nav a:hover {
+  color: #2563eb; /* Tailwind blue-600 */
+>>>>>>> main
 }

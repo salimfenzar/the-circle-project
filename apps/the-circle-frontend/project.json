@@ -19,7 +19,10 @@
                     "apps/the-circle-frontend/src/favicon.ico",
                     "apps/the-circle-frontend/src/assets"
                 ],
-                "styles": ["apps/the-circle-frontend/src/styles.css"],
+                "styles": [
+                    "node_modules/bootstrap/dist/css/bootstrap.min.css",
+                    "apps/the-circle-frontend/src/styles.css"
+                ],
                 "scripts": []
             },
             "configurations": {
@@ -37,7 +40,11 @@
                         }
                     ],
                     "outputHashing": "all"
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> main
                 },
                 "development": {
                     "buildOptimizer": false,
@@ -46,10 +53,17 @@
                     "extractLicenses": false,
                     "sourceMap": true,
                     "namedChunks": true
+<<<<<<< HEAD
                 },
                 "render": {
  
                 
+=======
+
+                },
+                "render": {
+           
+>>>>>>> main
                 }
             },
             "defaultConfiguration": "production"
