@@ -2,6 +2,7 @@ import { Route } from '@angular/router';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { StreamingComponent } from './components/dashboard/streaming/streaming.component';
 import { AuthRegisterComponent } from './components/auth/auth-register.component';
+import { AuthLoginComponent } from './components/auth/auth-login.component';
 
 export const appRoutes: Route[] = [
     {
@@ -25,5 +26,10 @@ export const appRoutes: Route[] = [
             import('./components/auth/auth-register.component').then(
                 (m) => m.AuthRegisterComponent
             )
-    }
+    },
+
+    {
+        path: 'login',
+        component: AuthLoginComponent
+    },
 ];

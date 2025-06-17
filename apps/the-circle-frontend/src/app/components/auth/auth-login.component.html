@@ -2,27 +2,8 @@
     <div class="row justify-content-center">
         <div class="col-sm-10 col-md-8 col-lg-6 my-5">
             <div class="card card-auth shadow-lg p-3 px-md-5 py-md-4">
-                <h2 style="font-size: 50px;">Register</h2>
+                <h2 style="font-size: 50px;">Login</h2>
                 <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
-                    <!--Name -->
-                    <div class="form-group">
-                        <label for="inputName">Name</label>
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="inputName"
-                            name="name"
-                            [(ngModel)]="formData.name"
-                            placeholder="Name"
-                            required
-                        />
-                        <small id="nameHelp" class="form-text text-muted">
-                            Use your first name and last name.
-                        </small>
-                        <span class="invalid-feedback">
-                            <p id="firstName-invalid">Name is invalid.</p>
-                        </span>
-                    </div>
 
                     <!-- Email -->
                     <div class="form-group">
@@ -39,7 +20,7 @@
                         />
                         <span class="invalid-feedback">
                             <p id="email-invalid">
-                                Email is invalid or already exists.
+                                Email is invalid.
                             </p>
                         </span>
                     </div>
@@ -57,7 +38,7 @@
                             required
                         />
                         <span class="invalid-feedback">
-                            <p id="password-invalid">Enter a valid password</p>
+                            <p id="password-invalid">Incorrect password</p>
                         </span>
                     </div>
 
@@ -68,13 +49,13 @@
                             class="btn btn-lg btn-primary btn-block"
                             type="submit"
                         >
-                            Sign in
+                            Log in
                         </button>
                     </div>
 
                     <small id="formHelp" class="form-text text-muted">
-                        Already have an account?
-                        <a href="/login" id="loginButton">Login</a>
+                        Don't have an account?
+                        <a href="/register" id="loginButton">Register</a>
                     </small>
                 </form>
             </div>
