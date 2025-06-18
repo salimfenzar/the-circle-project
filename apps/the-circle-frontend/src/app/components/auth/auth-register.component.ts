@@ -1,32 +1,52 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
+import { AuthService } from './auth.service';
+import { Router, RouterModule } from '@angular/router';
+import { UserGender, UserRole } from '../../../../../../libs/shared/src';
 
 @Component({
-    selector: 'avans-nx-workshop-auth-register',
-    standalone: true,
-    imports: [CommonModule, FormsModule, HttpClientModule],
-    templateUrl: './auth-register.component.html',
-    styleUrls: ['./auth-register.component.css']
+  selector: 'avans-nx-workshop-auth-register',
+  standalone: true,
+  imports: [CommonModule, FormsModule, HttpClientModule, RouterModule],
+  templateUrl: './auth-register.component.html',
+  styleUrls: ['./auth-register.component.css']
 })
 export class AuthRegisterComponent {
-    formData = {
-        name: '',
-        email: '',
-        password: ''
-    };
+  formData = {
+    name: '',
+    email: '',
+    password: '',
+    slogan: '',
+    avatarUrl: '',
+    gender: undefined as UserGender | undefined,
+    role: undefined as UserRole | undefined
+  };
 
-    constructor(private http: HttpClient) {}
+  genders = Object.values(UserGender);
+  roles = Object.values(UserRole);
+  errorMessage = '';
 
-    onSubmit() {
-        console.log('Formulier verzonden met:', this.formData);
+  constructor(private authService: AuthService, private router: Router) {}
 
-        this.http
-            .post('http://localhost:3000/auth/register', this.formData)
-            .subscribe({
-                next: (res) => console.log('Registratie gelukt:', res),
-                error: (err) => console.error('Fout bij registratie:', err)
-            });
-    }
+  onSubmit() {
+    this.errorMessage = ''; // reset vorige foutmelding
+
+    this.authService.register(this.formData).subscribe({
+      next: () => {
+        alert('Account succesvol aangemaakt!');
+        this.router.navigate(['/login']);
+      },
+      error: (err) => {
+        console.error('Registratiefout:', err);
+
+        if (err.status === 409 || (err?.error?.message?.includes('Email already in use'))) {
+          this.errorMessage = 'Dit e-mailadres is al in gebruik.';
+        } else {
+          this.errorMessage = 'Registratie mislukt. Probeer het opnieuw.';
+        }
+      }
+    });
+  }
 }
