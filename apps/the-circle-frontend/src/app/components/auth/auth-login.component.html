@@ -1,0 +1,64 @@
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-sm-10 col-md-8 col-lg-6 my-5">
+            <div class="card card-auth shadow-lg p-3 px-md-5 py-md-4">
+                <h2 style="font-size: 50px;">Login</h2>
+                <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="inputEmail">Email address</label>
+                        <input
+                            type="email"
+                            class="form-control"
+                            id="inputEmail"
+                            name="email"
+                            [(ngModel)]="formData.email"
+                            placeholder="Email address"
+                            aria-describedby="emailHelp"
+                            required
+                        />
+                        <span class="invalid-feedback">
+                            <p id="email-invalid">
+                                Email is invalid.
+                            </p>
+                        </span>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-group">
+                        <label for="inputPassword">Password</label>
+                        <input
+                            type="password"
+                            class="form-control"
+                            id="inputPassword"
+                            name="password"
+                            [(ngModel)]="formData.password"
+                            placeholder="Password"
+                            required
+                        />
+                        <span class="invalid-feedback">
+                            <p id="password-invalid">Incorrect password</p>
+                        </span>
+                    </div>
+
+                    <!-- Submit -->
+                    <div class="form-group mt-3">
+                        <button
+                            id="submitbutton"
+                            class="btn btn-lg btn-primary btn-block"
+                            type="submit"
+                        >
+                            Log in
+                        </button>
+                    </div>
+
+                    <small id="formHelp" class="form-text text-muted">
+                        Don't have an account?
+                        <a href="/register" id="loginButton">Register</a>
+                    </small>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
