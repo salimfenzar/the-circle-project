@@ -72,25 +72,17 @@
 
     <!-- Mobile menu -->
     <div *ngIf="isMobileMenuOpen" class="md:hidden px-4 pb-4 space-y-2">
-        <a
-            href="/dashboard"
-            class="block text-gray-700 hover:text-blue-600 font-medium transition"
-            >Dashboard</a
-        >
-        <a
-            href="/stream"
-            class="block text-gray-700 hover:text-blue-600 font-medium transition"
-            >Stream</a
-        >
-        <a
-            href="/profile"
-            class="block text-gray-700 hover:text-blue-600 font-medium transition"
-            >Profile</a
-        >
-        <a
-            href="/register"
-            class="block text-gray-700 hover:text-blue-600 font-medium transition"
-            >Register</a
-        >
+      <a href="/dashboard"
+         class="block text-gray-700 hover:text-blue-600 font-medium transition">Dashboard</a>
+
+      <a [routerLink]="['/streaming', currentStreamId]"
+         class="text-gray-700 hover:text-blue-600 font-medium transition">
+        Stream
+      </a>
+
+      <a href="/profile"
+         class="block text-gray-700 hover:text-blue-600 font-medium transition">Profile</a>
+      <a href="/register"
+         class="block text-gray-700 hover:text-blue-600 font-medium transition">Register</a>
     </div>
 </nav>
