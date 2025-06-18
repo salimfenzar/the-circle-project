@@ -5,17 +5,20 @@ import { User } from '../../user/schemas/user.schema'; // let op het juiste pad
 
 @Schema({ timestamps: true })
 export class Stream extends Document {
-  @Prop({ type: Types.ObjectId, ref: User.name, required: true })
-  userId: Types.ObjectId;
+    @Prop({ type: Types.ObjectId, ref: User.name, required: true })
+    userId: Types.ObjectId;
 
-  @Prop({ required: true })
-  startTime: Date;
+    @Prop({ required: true })
+    startTime: Date;
 
-  @Prop({ default: true })
-  isActive: boolean;
+    @Prop({ default: true })
+    isActive: boolean;
 
-  @Prop()
-  title?: string;
+    @Prop()
+    title?: string;
+
+    @Prop()
+    endTime?: Date;
 }
 
 export const StreamSchema = SchemaFactory.createForClass(Stream);
