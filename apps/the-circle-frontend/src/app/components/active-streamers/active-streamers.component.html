@@ -1,0 +1,31 @@
+<h2 class="text-xl font-bold mb-4">Live Active Streamers</h2>
+
+<ul *ngIf="activeStreams.length; else geenStreams" class="space-y-2">
+    <li
+        *ngFor="let stream of activeStreams"
+        class="p-4 border rounded shadow flex items-center space-x-4"
+    >
+        <!-- Avatar -->
+        <div class="w-12 h-12 rounded-full overflow-hidden bg-gray-200">
+            <img
+                [src]="stream.user?.avatarUrl || 'assets/avatar.avif'"
+                alt="avatar"
+                class="w-full h-full object-cover"
+            />
+        </div>
+
+        <!-- Stream info -->
+        <div>
+            <div class="font-semibold">
+                {{ stream.title || 'Untitled Stream' }}
+            </div>
+            <div class="text-sm text-gray-600">
+                Starttijd: {{ stream.startTime | date : 'short' }}
+            </div>
+        </div>
+    </li>
+</ul>
+
+<ng-template #geenStreams>
+    <p class="text-gray-500">Er zijn momenteel geen actieve streams.</p>
+</ng-template>
