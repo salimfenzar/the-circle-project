@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { ViewChild } from '@angular/core';
+import { NgForm } from '@angular/forms';
 
 @Component({
     selector: 'avans-nx-workshop-auth-register',
@@ -18,6 +20,8 @@ export class AuthRegisterComponent {
         password: ''
     };
 
+    @ViewChild('registerForm') registerForm!: NgForm;
+
     constructor(private http: HttpClient, private snackBar: MatSnackBar) {}
 
     onSubmit() {
@@ -31,7 +35,7 @@ export class AuthRegisterComponent {
                         duration: 3000,
                         panelClass: ['snackbar-success']
                     });
-                    this.formData = { name: '', email: '', password: '' };
+                    this.registerForm.resetForm();
                 },
                 error: (err) => {
                     const message = err.error?.message || 'Registratie mislukt';
