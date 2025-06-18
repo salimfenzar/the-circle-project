@@ -4,6 +4,4 @@ export class CreateStreamDto {
   startTime: Date;
   isActive?: boolean;
   title?: string;
-  avatarUrl?: string;
-  slogan?: string;
 }

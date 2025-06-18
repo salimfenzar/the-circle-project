@@ -26,4 +26,24 @@ export class StreamService {
     async findById(id: string): Promise<Stream | null> {
         return this.streamModel.findById(id).exec();
     }
+
+    async endStream(id: string): Promise<Stream | null> {
+        const stream = await this.streamModel.findById(id).exec();
+        if (!stream) {
+            return null;
+        }
+        stream.isActive = false;
+        stream.endTime = new Date(); // Set the end time to now
+        return stream.save();
+    }
+
+    async joinStream(id: string, userId: string): Promise<Stream | null> {
+        return this.streamModel
+            .findByIdAndUpdate(
+                id,
+                { $addToSet: { followers: userId } }, 
+                { new: true }
+            )
+            .exec();
+    }
 }
