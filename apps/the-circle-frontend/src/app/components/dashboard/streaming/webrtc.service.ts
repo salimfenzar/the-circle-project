@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
 
 export class WebRTCService {
-  private socket = io('http://145.49.27.165:3100'); // your backend signaling server port
+  private socket = io('https://the-circle-project-1.onrender.com'); // your backend signaling server port
 
   private peerConnection!: RTCPeerConnection;
   onRemoteStreamCallback?: (stream: MediaStream) => void;
