@@ -22,7 +22,7 @@ export interface LoginDto {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = 'http://localhost:3000/auth';
+  private readonly API_URL = 'https://the-circle-project-1.onrender.com/auth';
 
   constructor(private http: HttpClient) {}
 
