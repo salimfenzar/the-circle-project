@@ -1,49 +1,52 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
+import { AuthService } from './auth.service';
+import { Router, RouterModule } from '@angular/router';
+import { UserGender, UserRole } from '../../../../../../libs/shared/src';
 
 @Component({
-    selector: 'avans-nx-workshop-auth-register',
-    standalone: true,
-    imports: [CommonModule, FormsModule, HttpClientModule, MatSnackBarModule],
-    templateUrl: './auth-register.component.html',
-    styleUrls: ['./auth-register.component.css']
+  selector: 'avans-nx-workshop-auth-register',
+  standalone: true,
+  imports: [CommonModule, FormsModule, HttpClientModule, RouterModule],
+  templateUrl: './auth-register.component.html',
+  styleUrls: ['./auth-register.component.css']
 })
 export class AuthRegisterComponent {
-    formData = {
-        name: '',
-        email: '',
-        password: ''
-    };
+  formData = {
+    name: '',
+    email: '',
+    password: '',
+    slogan: '',
+    avatarUrl: '',
+    gender: undefined as UserGender | undefined,
+    role: undefined as UserRole | undefined
+  };
 
-    @ViewChild('registerForm') registerForm!: NgForm;
+  genders = Object.values(UserGender);
+  roles = Object.values(UserRole);
+  errorMessage = '';
 
-    constructor(private http: HttpClient, private snackBar: MatSnackBar) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
-    onSubmit() {
-        console.log('Formulier verzonden met:', this.formData);
+  onSubmit() {
+    this.errorMessage = ''; // reset vorige foutmelding
 
-        this.http
-            .post('http://localhost:3000/auth/register', this.formData)
-            .subscribe({
-                next: () => {
-                    this.snackBar.open('Registratie gelukt!', 'Sluiten', {
-                        duration: 3000,
-                        panelClass: ['snackbar-success']
-                    });
-                    this.registerForm.resetForm();
-                },
-                error: (err) => {
-                    const message = err.error?.message || 'Registratie mislukt';
-                    this.snackBar.open('⚠️ ' + message, 'Sluiten', {
-                        duration: 3000,
-                        panelClass: ['snackbar-warning']
-                    });
-                }
-            });
-    }
+    this.authService.register(this.formData).subscribe({
+      next: () => {
+        alert('Account succesvol aangemaakt!');
+        this.router.navigate(['/login']);
+      },
+      error: (err) => {
+        console.error('Registratiefout:', err);
+
+        if (err.status === 409 || (err?.error?.message?.includes('Email already in use'))) {
+          this.errorMessage = 'Dit e-mailadres is al in gebruik.';
+        } else {
+          this.errorMessage = 'Registratie mislukt. Probeer het opnieuw.';
+        }
+      }
+    });
+  }
 }
