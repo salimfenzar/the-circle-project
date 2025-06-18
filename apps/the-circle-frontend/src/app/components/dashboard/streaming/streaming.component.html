@@ -2,9 +2,10 @@
     <div class="video-section">
       <video #localVideo autoplay muted playsinline [hidden]="!showLocal"></video>
       <video #remoteVideo autoplay playsinline [hidden]="!showRemote"></video>
-      <div class="video-overlay">Live: 00:12:34</div>
+      <div class="video-overlay">Live: {{streamDuration}}</div>
       <div class="follower-overlay">Followers: 2</div>
-      <div class="startstopbtn"><button (click)="start(true)">Start/Stop</button></div>
+      <div class="startstopbtn"><button (click)="start(true)">
+    {{ isStreaming ? 'Stop Stream' : 'Start Stream' }}</button></div>
     </div>
   
     <div class="chat-section">

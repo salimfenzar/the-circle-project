@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
 
 export class WebRTCService {
-  private socket = io('http://145.49.8.246:3100'); // your backend signaling server port
+  private socket = io('http://145.49.27.165:3100'); // your backend signaling server port
 
   private peerConnection!: RTCPeerConnection;
   onRemoteStreamCallback?: (stream: MediaStream) => void;
@@ -87,6 +87,22 @@ console.log(this.localStream.getVideoTracks()[0].getSettings()); //settigns van 
         this.peerConnection.addTrack(track, this.localStream)
       );
     }
+  }
+
+  async stopConnection() {
+    if (this.peerConnection) {
+      this.peerConnection.close();
+      this.peerConnection = null as any; // Reset peerConnection
+    }
+    if (this.localStream) {
+      this.localStream.getTracks().forEach((track) => track.stop());
+      this.localStream = null as any; // Reset localStream
+    }
+    if (this.remoteStream) {
+      this.remoteStream.getTracks().forEach((track) => track.stop());
+      this.remoteStream = null as any; // Reset remoteStream
+    }
+    this.socket.emit('stop-broadcast');
   }
 
   private async createOffer() {
