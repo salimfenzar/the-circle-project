@@ -1,0 +1,15 @@
+#submitbutton {
+    color: rgb(0, 0, 0) !important;
+}
+#loginButton {
+    color: rgb(0, 0, 0) !important;
+    background-color: rgb(255, 255, 255) !important;
+    border: 1px solid rgb(30, 0, 255) !important;
+    border-radius: 10px !important;
+    padding: 5px 10px !important;
+}
+
+#loginButton:hover {
+    background-color: rgba(54, 30, 235, 0.899) !important;
+    color: rgb(0, 0, 0) !important;
+}

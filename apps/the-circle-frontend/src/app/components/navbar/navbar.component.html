@@ -1,32 +1,54 @@
-<nav class="navbar">
-  <div class="logo">🔵 The Circle</div>
-  <ul class="nav-links">
-    <li><a routerLink="/dashboard">Dashboard</a></li>
-    <li><a routerLink="/profile">Profile</a></li>
-    <li><a routerLink="/login">Login</a></li>
-  </ul>
 <nav class="bg-white border-b border-gray-200 shadow-md fixed top-0 left-0 w-full z-50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center h-16">
       <!-- Logo -->
       <div class="flex-shrink-0">
-        <a href="/" class="text-2xl font-bold text-blue-600 hover:text-blue-800 transition">TheCircle</a>
+        <a
+          [routerLink]="'/'"
+          class="text-2xl font-bold text-blue-600 hover:text-blue-800 transition"
+        >
+          TheCircle
+        </a>
       </div>
 
       <!-- Desktop nav -->
-      <div class="hidden md:flex space-x-8">
-        <a href="/dashboard" class="text-gray-700 hover:text-blue-600 font-medium transition">Dashboard</a>
-        <a href="/streaming" class="text-gray-700 hover:text-blue-600 font-medium transition">Stream</a>
-        <a href="/profile" class="text-gray-700 hover:text-blue-600 font-medium transition">Profile</a>
-      </div>
+<div class="hidden md:flex space-x-8">
+  <a [routerLink]="'/dashboard'" routerLinkActive="text-blue-600"
+    class="text-gray-700 hover:text-blue-600 font-medium transition">Dashboard</a>
+
+  <a [routerLink]="'/streaming'" routerLinkActive="text-blue-600"
+    class="text-gray-700 hover:text-blue-600 font-medium transition">Stream</a>
+
+  <a [routerLink]="'/active-streamers'" routerLinkActive="text-blue-600"
+    class="text-gray-700 hover:text-blue-600 font-medium transition">🔴 Active Streamers</a>
+
+  <a *ngIf="isLoggedIn" [routerLink]="'/profile'" routerLinkActive="text-blue-600"
+    class="text-gray-700 hover:text-blue-600 font-medium transition">Profile</a>
+
+  <a *ngIf="!isLoggedIn" [routerLink]="'/register'" routerLinkActive="text-blue-600"
+    class="text-gray-700 hover:text-blue-600 font-medium transition">Register</a>
+
+  <button *ngIf="isLoggedIn" (click)="logout()"
+    class="text-red-600 hover:text-red-800 font-medium transition">Logout</button>
+</div>
+
 
       <!-- Mobile burger -->
       <div class="md:hidden">
-        <button (click)="toggleMobileMenu()" class="text-gray-600 hover:text-blue-600 focus:outline-none">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
-            viewBox="0 0 24 24">
-            <path [attr.d]="isMobileMenuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'"
-              stroke-linecap="round" stroke-linejoin="round" />
+        <button
+          (click)="toggleMobileMenu()"
+          class="text-gray-600 hover:text-blue-600 focus:outline-none"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path
+              [attr.d]="
+                isMobileMenuOpen
+                  ? 'M6 18L18 6M6 6l12 12'
+                  : 'M4 6h16M4 12h16M4 18h16'
+              "
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
           </svg>
         </button>
       </div>
@@ -34,9 +56,16 @@
   </div>
 
   <!-- Mobile menu -->
-  <div *ngIf="isMobileMenuOpen" class="md:hidden px-4 pb-4 space-y-2">
-    <a href="/dashboard" class="block text-gray-700 hover:text-blue-600 font-medium transition">Dashboard</a>
-    <a href="/stream" class="block text-gray-700 hover:text-blue-600 font-medium transition">Stream</a>
-    <a href="/profile" class="block text-gray-700 hover:text-blue-600 font-medium transition">Profile</a>
-  </div>
+<div *ngIf="isMobileMenuOpen" class="md:hidden px-4 pb-4 space-y-2">
+  <a [routerLink]="'/dashboard'" class="block text-gray-700 hover:text-blue-600 font-medium transition">Dashboard</a>
+  <a [routerLink]="'/streaming'" class="block text-gray-700 hover:text-blue-600 font-medium transition">Stream</a>
+  <a [routerLink]="'/active-streamers'" class="block text-gray-700 hover:text-blue-600 font-medium transition">🔴 Active Streamers</a>
+
+  <a *ngIf="isLoggedIn" [routerLink]="'/profile'" class="block text-gray-700 hover:text-blue-600 font-medium transition">Profile</a>
+
+  <a *ngIf="!isLoggedIn" [routerLink]="'/register'" class="block text-gray-700 hover:text-blue-600 font-medium transition">Register</a>
+
+  <button *ngIf="isLoggedIn" (click)="logout()" class="block text-red-600 hover:text-red-800 font-medium transition">Logout</button>
+</div>
+
 </nav>

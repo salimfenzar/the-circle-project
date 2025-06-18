@@ -1,6 +1,7 @@
 <div class="streaming-container">
     <div class="video-section">
-      <video autoplay muted playsinline></video>
+      <video #localVideo autoplay muted playsinline></video>
+      <video #remoteVideo autoplay playsinline></video>
       <div class="video-overlay">Live: 00:12:34</div>
       <div class="follower-overlay">Followers: 2</div>
       <div class="startstopbtn"><button>Start/Stop</button></div>
@@ -19,6 +20,9 @@
         <button class="sendmsg-btn" type="submit" disabled>Send</button>
       </form>
     </div>
+    
+    <button (click)="start(true)">Start Broadcast</button>
+    <button (click)="start(false)">Join Stream</button>
 </div>
   
   
