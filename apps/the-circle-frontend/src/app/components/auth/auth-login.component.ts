@@ -1,32 +1,43 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
+import { Router, RouterModule } from '@angular/router';
+import { AuthService } from './auth.service';
 
 @Component({
-    selector: 'avans-nx-workshop-auth-login',
-    standalone: true,
-    imports: [CommonModule, FormsModule, HttpClientModule],
-    templateUrl: './auth-login.component.html',
-    styleUrls: ['./auth-login.component.css']
+  selector: 'avans-nx-workshop-auth-login',
+  standalone: true,
+  imports: [CommonModule, FormsModule, HttpClientModule, RouterModule],
+  templateUrl: './auth-login.component.html',
+  styleUrls: ['./auth-login.component.css']
 })
 export class AuthLoginComponent {
-    formData = {
-        email: '',
-        password: ''
-    };
+  formData = {
+    email: '',
+    password: ''
+  };
 
-    constructor(private http: HttpClient) {}
+  errorMessage = '';
 
-    onSubmit() {
-        console.log('Formulier verzonden met:', this.formData);
+  constructor(private authService: AuthService, private router: Router) {}
 
-        // Todo: handle login
-        // this.http
-        //     .post('http://localhost:3000/auth/login', this.formData)
-        //     .subscribe({
-        //         next: (res) => console.log('Registratie gelukt:', res),
-        //         error: (err) => console.error('Fout bij registratie:', err)
-        //     });
-    }
+  onSubmit() {
+    this.errorMessage = '';
+
+    this.authService.login(this.formData).subscribe({
+      next: (res) => {
+        alert('Inloggen gelukt!');
+        localStorage.setItem('access_token', res.token);
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        console.error('Loginfout:', err);
+        this.errorMessage =
+          err.status === 401
+            ? 'Ongeldig e-mailadres of wachtwoord.'
+            : 'Inloggen mislukt. Probeer het opnieuw.';
+      }
+    });
+  }
 }
