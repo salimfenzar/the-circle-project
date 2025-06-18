@@ -1,0 +1,15 @@
+.hero-section {
+  background-image: url('/assets/360Streaming.jpg'); /* Replace with your image path */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 400px; /* Adjust as needed */
+  width: 100%;
+}
+
+.center-element {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
