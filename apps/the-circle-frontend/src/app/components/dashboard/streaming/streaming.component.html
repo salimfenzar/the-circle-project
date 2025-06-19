@@ -12,16 +12,18 @@
       <div class="chat-header">Live Chat</div>
   
       <div class="chat-messages">
-        <div class="message" *ngFor="let message of chatMessages">
-        <strong>{{ message.userName }}:</strong> {{ message.text }}<br />
-        <small class="text-xs text-gray-400">{{ message.timestamp | date: 'shortTime' }}</small>
-        </div>
-        <button (click)="start(false)">Join Stream</button>
+
+      <div class="message" *ngFor="let message of chatMessages">
+      <strong>{{ message.userName }}:</strong> {{ message.text }}<br />
+      <small class="text-xs text-gray-400">{{ message.timestamp | date: 'shortTime' }}</small>
+      </div>
+
+      <form (submit)="sendMessage(); $event.preventDefault();">
+        <input type="text" [(ngModel)]="newMessage" name="message" placeholder="Type a message..." />
+        <button class="sendmsg-btn" type="submit" [disabled]="!newMessage.trim()">Send</button>
+      </form>
+      
+      <button (click)="start(false)">Join Stream</button>
       </div>
     </div>
-
-    <form (submit)="sendMessage(); $event.preventDefault();">
-      <input type="text" [(ngModel)]="newMessage" name="message" placeholder="Type a message..." />
-      <button class="sendmsg-btn" type="submit" [disabled]="!newMessage.trim()">Send</button>
-    </form>
 </div>

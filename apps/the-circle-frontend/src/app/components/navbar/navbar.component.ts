@@ -4,7 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 
 
 @Component({
-    selector: 'avans-nx-workshop-app-navbar',
+    selector: 'avans-nx-workshop-navbar',
     templateUrl: './navbar.component.html',
     styleUrls: ['./navbar.component.css'],
     standalone: true,

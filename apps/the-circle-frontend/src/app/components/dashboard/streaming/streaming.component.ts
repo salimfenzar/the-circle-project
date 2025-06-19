@@ -28,7 +28,7 @@ export class StreamingComponent implements OnInit, AfterViewInit {
   showRemote = false;
   isStreaming = false;
   streamStartTime: Date | null = null;
-  streamDuration: string = '00:00:00';
+  streamDuration = '00:00:00';
   private timerInterval: any;
 
 
@@ -106,6 +106,24 @@ export class StreamingComponent implements OnInit, AfterViewInit {
   }
 
 
+  ngOnInit(): void {
+    this.route.params.subscribe(params => {
+      this.streamId = params['id'];
+      console.log('Stream ID uit route:', this.streamId);
+
+      // Chatgeschiedenis ophalen
+      this.chatService.getMessages(this.streamId).subscribe((msgs) => {
+        this.chatMessages = msgs.reverse();
+      });
+
+      // Luister realtime naar nieuwe chatberichten
+      this.chatService.onMessage((msg) => {
+        if (msg.streamId === this.streamId) {
+          this.chatMessages.push(msg);
+        }
+      });
+    });
+  }
 
   ngAfterViewInit() {
     this.webrtc.onRemoteStreamCallback = (stream) => {
