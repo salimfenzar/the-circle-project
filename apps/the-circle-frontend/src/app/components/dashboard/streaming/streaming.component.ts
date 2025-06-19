@@ -1,17 +1,26 @@
-import { Component, ElementRef, ViewChild, inject, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  ViewChild,
+  inject,
+  AfterViewInit,
+  OnInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { WebRTCService } from './webrtc.service';
+import { ChatService } from '../../services/chat.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
-    selector: 'avans-nx-workshop-streaming',
-    standalone: true,
-    imports: [CommonModule],
-    providers: [WebRTCService],
-    templateUrl: './streaming.component.html',
-    styleUrls: ['./streaming.component.css']
+  selector: 'avans-nx-workshop-streaming',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  providers: [WebRTCService],
+  templateUrl: './streaming.component.html',
+  styleUrls: ['./streaming.component.css'],
 })
-
-export class StreamingComponent implements AfterViewInit {
+export class StreamingComponent implements OnInit, AfterViewInit {
   @ViewChild('localVideo') localVideo!: ElementRef<HTMLVideoElement>;
   @ViewChild('remoteVideo') remoteVideo!: ElementRef<HTMLVideoElement>;
 
@@ -24,6 +33,15 @@ export class StreamingComponent implements AfterViewInit {
 
 
   private webrtc = inject(WebRTCService);
+  private chatService = inject(ChatService);
+  private route = inject(ActivatedRoute);
+
+  chatMessages: any[] = [];
+  newMessage = '';
+
+  userId = 'u123';           // ← vervangen door echte user-id later
+  userName = 'Yumnie';       // ← idem
+  streamId = '';             // ← dynamisch uit URL
   
   async start(isCaller: boolean) {
     if (this.isStreaming) {
@@ -54,44 +72,59 @@ export class StreamingComponent implements AfterViewInit {
 
 
 
-stop() {
-  this.webrtc.stopConnection();
-  if (this.localVideo?.nativeElement) {
-    this.localVideo.nativeElement.srcObject = null;
-  }
-  if (this.remoteVideo?.nativeElement) {
-    this.remoteVideo.nativeElement.srcObject = null;
-  }
-
-  this.isStreaming = false;
-  clearInterval(this.timerInterval); // ⬅️ deze regel toevoegen
-  this.streamDuration = '00:00:00';
-  this.streamStartTime = null;
-}
-
-
-  updateStreamDuration() {
-    if (this.streamStartTime) {
-      const now = new Date();
-      const elapsed = Math.floor((now.getTime() - this.streamStartTime.getTime()) / 1000);
-      const hours = String(Math.floor(elapsed / 3600)).padStart(2, '0');
-      const minutes = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
-      const seconds = String(elapsed % 60).padStart(2, '0');
-      this.streamDuration = `${hours}:${minutes}:${seconds}`;
+  stop() {
+    this.webrtc.stopConnection();
+    if (this.localVideo?.nativeElement) {
+      this.localVideo.nativeElement.srcObject = null;
     }
+    if (this.remoteVideo?.nativeElement) {
+      this.remoteVideo.nativeElement.srcObject = null;
+    }
+
+    this.isStreaming = false;
+    clearInterval(this.timerInterval); // ⬅️ deze regel toevoegen
+    this.streamDuration = '00:00:00';
+    this.streamStartTime = null;
   }
 
-  startTimer() {
-  this.timerInterval = setInterval(() => {
-    this.updateStreamDuration();
-  }, 1000); // elke seconde bijwerken
-}
+
+    updateStreamDuration() {
+      if (this.streamStartTime) {
+        const now = new Date();
+        const elapsed = Math.floor((now.getTime() - this.streamStartTime.getTime()) / 1000);
+        const hours = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+        const minutes = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+        const seconds = String(elapsed % 60).padStart(2, '0');
+        this.streamDuration = `${hours}:${minutes}:${seconds}`;
+      }
+    }
+
+    startTimer() {
+    this.timerInterval = setInterval(() => {
+      this.updateStreamDuration();
+    }, 1000); // elke seconde bijwerken
+  }
 
 
-  
+
   ngAfterViewInit() {
     this.webrtc.onRemoteStreamCallback = (stream) => {
       this.remoteVideo.nativeElement.srcObject = stream;
     };
+  }
+
+  sendMessage() {
+    if (!this.newMessage.trim()) return;
+
+    const msg = {
+      userId: this.userId,
+      userName: this.userName,
+      text: this.newMessage,
+      streamId: this.streamId,
+    };
+
+    this.chatService.sendMessage(msg);
+    this.chatMessages.push({ ...msg, timestamp: new Date().toISOString() });
+    this.newMessage = '';
   }
 }
