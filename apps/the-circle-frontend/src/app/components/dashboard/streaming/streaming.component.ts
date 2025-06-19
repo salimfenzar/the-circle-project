@@ -1,6 +1,7 @@
 import { Component, ElementRef, ViewChild, inject, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WebRTCService } from './webrtc.service';
+import { StreamService } from './streaming.service';
 
 @Component({
     selector: 'avans-nx-workshop-streaming',
@@ -24,7 +25,21 @@ export class StreamingComponent implements AfterViewInit {
 
 
   private webrtc = inject(WebRTCService);
+  constructor(
+    private streamService: StreamService
+  ){}
   
+  updateStreamDuration() {
+    if (this.streamStartTime) {
+      const now = new Date();
+      const elapsed = Math.floor((now.getTime() - this.streamStartTime.getTime()) / 1000);
+      const hours = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+      const seconds = String(elapsed % 60).padStart(2, '0');
+      this.streamDuration = `${hours}:${minutes}:${seconds}`;
+    }
+  }
+
   async start(isCaller: boolean) {
     if (this.isStreaming) {
     this.stop();
@@ -50,9 +65,19 @@ export class StreamingComponent implements AfterViewInit {
   if (this.remoteVideo?.nativeElement) {
     this.remoteVideo.nativeElement.srcObject = this.webrtc.remoteStream;
   }
+  const streamData = {
+    startTime: this.streamStartTime,
+    title: 'Live Stream',
+    isActive: true,
+    //userId: '6853dfb79dd8407f2d6aacb3'
+  };
+  
+  this.streamService.createStream(streamData).subscribe({
+    next: (stream) => {
+      console.log('Stream created:', stream);
+    }
+  });
 }
-
-
 
 stop() {
   this.webrtc.stopConnection();
@@ -70,16 +95,6 @@ stop() {
 }
 
 
-  updateStreamDuration() {
-    if (this.streamStartTime) {
-      const now = new Date();
-      const elapsed = Math.floor((now.getTime() - this.streamStartTime.getTime()) / 1000);
-      const hours = String(Math.floor(elapsed / 3600)).padStart(2, '0');
-      const minutes = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
-      const seconds = String(elapsed % 60).padStart(2, '0');
-      this.streamDuration = `${hours}:${minutes}:${seconds}`;
-    }
-  }
 
   startTimer() {
   this.timerInterval = setInterval(() => {

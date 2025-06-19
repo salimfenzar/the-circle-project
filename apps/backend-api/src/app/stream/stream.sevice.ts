@@ -10,8 +10,10 @@ import { CreateStreamDto } from './dto/create-stream.dto';
 export class StreamService {
     constructor(@InjectModel(Stream.name) private streamModel: Model<Stream>) {}
 
-    async create(createStreamDto: CreateStreamDto): Promise<Stream> {
+    async create(createStreamDto: CreateStreamDto, userId: string): Promise<Stream> {
+        createStreamDto.userId = userId;
         const created = new this.streamModel(createStreamDto);
+        console.log('created:', created)
         return created.save();
     }
 
