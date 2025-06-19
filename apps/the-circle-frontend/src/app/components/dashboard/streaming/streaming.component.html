@@ -1,29 +1,34 @@
 <div class="streaming-container">
     <div class="video-section">
-      <video #localVideo autoplay muted playsinline></video>
-      <video #remoteVideo autoplay playsinline></video>
-      <div class="video-overlay">Live: 00:12:34</div>
-      <div class="follower-overlay">Followers: 2</div>
-      <div class="startstopbtn"><button>Start/Stop</button></div>
+        <video
+            #localVideo
+            autoplay
+            muted
+            playsinline
+            [hidden]="!showLocal"
+        ></video>
+        <video #remoteVideo autoplay playsinline [hidden]="!showRemote"></video>
+        <div class="video-overlay">Live: {{ streamDuration }}</div>
+        <div class="follower-overlay">Followers: 2</div>
+        <div class="startstopbtn">
+            <button (click)="start(true)">
+                {{ isStreaming ? 'Stop Stream' : 'Start Stream' }}
+            </button>
+        </div>
     </div>
-  
+
     <div class="chat-section">
-      <div class="chat-header">Live Chat</div>
-  
-      <div class="chat-messages">
-        <div class="message"><strong>User1:</strong> HI</div>
-        <div class="message"><strong>User2:</strong> bb</div>
-      </div>
-  
-      <form>
-        <input type="text" placeholder="Type a message..." />
-        <button class="sendmsg-btn" type="submit" disabled>Send</button>
-      </form>
+        <div class="chat-header">Live Chat</div>
+
+        <div class="chat-messages">
+            <div class="message"><strong>User1:</strong> HI</div>
+            <div class="message"><strong>User2:</strong> bb</div>
+            <button (click)="start(false)">Join Stream</button>
+        </div>
+
+        <form>
+            <input type="text" placeholder="Type a message..." />
+            <button class="sendmsg-btn" type="submit" disabled>Send</button>
+        </form>
     </div>
-    
-    <button (click)="start(true)">Start Broadcast</button>
-    <button (click)="start(false)">Join Stream</button>
 </div>
-  
-  
-  
