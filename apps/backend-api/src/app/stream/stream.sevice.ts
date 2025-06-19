@@ -29,4 +29,26 @@ export class StreamService {
     async findById(id: string): Promise<Stream | null> {
         return this.streamModel.findById(id).exec();
     }
+
+    async stopStream(streamId: string): Promise<{ reward: number }> {
+        const stream = await this.streamModel.findById(streamId);
+        if (!stream || !stream.isActive) {
+            throw new Error('Stream niet gevonden of al gestopt');
+        }
+
+        stream.endTime = new Date();
+        stream.isActive = false;
+
+        const duration = this.rewardService.calculateStreamDuration(stream);
+        const reward = this.rewardService.calculateReward(duration);
+
+        console.log('Stream userId:', stream.userId);
+        await this.rewardService.applyRewardToUser(
+            stream.userId.toString(),
+            reward
+        );
+        await stream.save();
+
+        return { reward };
+    }
 }

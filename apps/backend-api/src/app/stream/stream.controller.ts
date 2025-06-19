@@ -1,5 +1,5 @@
 // streams/stream.controller.ts
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
 import { StreamService } from './stream.sevice';
 import { CreateStreamDto } from './dto/create-stream.dto';
 import { Stream } from './schemas/stream.schema';
@@ -26,5 +26,10 @@ export class StreamController {
     @Get(':id')
     async findById(@Param('id') id: string): Promise<Stream | null> {
         return this.streamService.findById(id);
+    }
+
+    @Post('stop/:id')
+    async stop(@Param('id') id: string) {
+        return this.streamService.stopStream(id);
     }
 }

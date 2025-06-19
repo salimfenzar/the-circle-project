@@ -15,7 +15,7 @@ export class ActiveStreamersComponent implements OnInit {
     constructor(private http: HttpClient) {}
 
     ngOnInit(): void {
-        this.http.get<any[]>('https://the-circle-project-1.onrender.com/streams/active').subscribe({
+        this.http.get<any[]>('http://localhost:3000/streams/active').subscribe({
             next: (streams) => {
                 this.activeStreams = streams;
             },
