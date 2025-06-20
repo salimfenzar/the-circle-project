@@ -22,6 +22,7 @@ export class StreamingComponent implements AfterViewInit {
   streamStartTime: Date | null = null;
   streamDuration: string = '00:00:00';
   private timerInterval: any;
+  currentStreamId: string | null = null;
 
 
   private webrtc = inject(WebRTCService);
@@ -65,18 +66,33 @@ export class StreamingComponent implements AfterViewInit {
   if (this.remoteVideo?.nativeElement) {
     this.remoteVideo.nativeElement.srcObject = this.webrtc.remoteStream;
   }
+
+  if(isCaller){
+
+  
   const streamData = {
     startTime: this.streamStartTime,
     title: 'Live Stream',
     isActive: true,
-    //userId: '6853dfb79dd8407f2d6aacb3'
   };
   
   this.streamService.createStream(streamData).subscribe({
     next: (stream) => {
       console.log('Stream created:', stream);
+      this.currentStreamId = stream._id ?? null; 
+      console.log('Current Stream ID:', this.currentStreamId);
     }
   });
+  } else {
+    this.streamService.joinStream('6852b19bef649e51d42275e8').subscribe({ //streamid is hier nog hardcoded, maar de joinknop komt op een andere pagina
+      next: (stream) => {
+        console.log('Joined stream:', stream);
+      },
+      error: (error) => {
+        console.error('Error joining stream:', error);
+      }
+    });
+  }
 }
 
 stop() {
@@ -89,9 +105,15 @@ stop() {
   }
 
   this.isStreaming = false;
-  clearInterval(this.timerInterval); // ⬅️ deze regel toevoegen
+  clearInterval(this.timerInterval); 
   this.streamDuration = '00:00:00';
   this.streamStartTime = null;
+  this.streamService.stopStream(this.currentStreamId ?? '').subscribe({
+    next: (stream) => {
+      console.log('Stream stopped:', stream);
+    }
+  });
+  this.currentStreamId = null; //reset de huidige stream ID
 }
 
 

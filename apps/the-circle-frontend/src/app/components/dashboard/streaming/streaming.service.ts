@@ -32,12 +32,21 @@ export class StreamService {
     return this.http.post<IStream>(`${environment.dataApiUrl}/streams`, item, { headers });
 
   }
-  stopStream(item: IStream, options?: any): Observable<IStream> {
-    return this.http
-      .put<ApiResponse<IStream>>(environment.dataApiUrl + '/Tag/' + item._id, item, { responseType: 'json' })
-      .pipe(
-        map((response) => response.results),
-        tap(console.log)
-      );
+
+  stopStream(streamId: string, options?: any): Observable<IStream> {
+    return this.http.patch<IStream>(`${environment.dataApiUrl}/streams/${streamId}/end`,{})
+  }
+
+  joinStream(streamId: string, options?: any): Observable<IStream> {
+    const token = this.authService.getToken();
+
+    if(!token){
+      throw new Error('No token found');
+    }
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    });
+    return this.http.patch<IStream>(`${environment.dataApiUrl}/streams/${streamId}/join`, { headers });
   }
 }
