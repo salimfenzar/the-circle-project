@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 @Component({
-    selector: 'app-active-streamers',
+    selector: 'avans-nx-workshop-app-active-streamers',
     standalone: true,
     imports: [CommonModule, HttpClientModule],
     templateUrl: './active-streamers.component.html',
@@ -12,10 +13,10 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 export class ActiveStreamersComponent implements OnInit {
     activeStreams: any[] = [];
 
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient, private router: Router) {}
 
     ngOnInit(): void {
-        this.http.get<any[]>('https://the-circle-project-1.onrender.com/streams/active').subscribe({
+        this.http.get<any[]>('http://localhost:3000/streams/active').subscribe({
             next: (streams) => {
                 this.activeStreams = streams;
             },
@@ -23,5 +24,10 @@ export class ActiveStreamersComponent implements OnInit {
                 console.error('Fout bij ophalen streams', err);
             }
         });
+    }
+
+    joinStream(streamId: string) {
+        // Redirect to the stream viewing page, passing the stream ID
+        this.router.navigate(['/watch', streamId]);
     }
 }

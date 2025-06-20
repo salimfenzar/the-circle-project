@@ -39,5 +39,11 @@ export const appRoutes: Route[] = [
             import(
                 './components/active-streamers/active-streamers.component'
             ).then((m) => m.ActiveStreamersComponent)
+    },
+
+    {
+        path: 'watch/:id',
+        loadComponent: () => import('./components/watch/watch.component').then(m => m.WatchComponent)
     }
+
 ];
