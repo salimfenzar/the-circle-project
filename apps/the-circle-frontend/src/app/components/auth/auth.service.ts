@@ -33,4 +33,8 @@ export class AuthService {
     login(data: LoginDto): Observable<any> {
         return this.http.post(`${this.API_URL}/login`, data);
     }
+
+    getCurrentUser() {
+        return this.http.get<{ rewardSatoshi: number }>(`${this.API_URL}/me`);
+    }
 }

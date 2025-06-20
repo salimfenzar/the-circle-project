@@ -9,7 +9,13 @@
         ></video>
         <video #remoteVideo autoplay playsinline [hidden]="!showRemote"></video>
         <div class="video-overlay">Live: {{ streamDuration }}</div>
-        <div class="follower-overlay">Followers: 2</div>
+        <div class="info-overlay">
+            <div class="info-box">Followers: 2</div>
+            <div class="info-box">
+                Total earned Satoshi: {{ rewardSatoshi }} ⚡
+            </div>
+        </div>
+
         <div class="startstopbtn">
             <button (click)="start(true)">
                 {{ isStreaming ? 'Stop Stream' : 'Start Stream' }}

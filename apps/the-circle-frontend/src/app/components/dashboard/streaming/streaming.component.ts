@@ -8,6 +8,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { WebRTCService } from './webrtc.service';
 import { HttpClient } from '@angular/common/http';
+import { StreamingService } from './streaming.service';
 
 @Component({
     selector: 'avans-nx-workshop-streaming',
@@ -20,7 +21,9 @@ import { HttpClient } from '@angular/common/http';
 export class StreamingComponent implements AfterViewInit {
     @ViewChild('localVideo') localVideo!: ElementRef<HTMLVideoElement>;
     @ViewChild('remoteVideo') remoteVideo!: ElementRef<HTMLVideoElement>;
+    constructor(private streamingService: StreamingService) {}
 
+    rewardedSatoshi = 0;
     showLocal = false;
     showRemote = false;
     isStreaming = false;
@@ -28,9 +31,22 @@ export class StreamingComponent implements AfterViewInit {
     streamDuration: string = '00:00:00';
     currentStreamId: string | null = null;
     private timerInterval: any;
+    rewardSatoshi: number = 0;
 
     private webrtc = inject(WebRTCService);
     private http = inject(HttpClient);
+
+    ngOnInit() {
+        this.streamingService.getRewardSatoshi().subscribe({
+            next: (reward) => {
+                console.log('Reward received from backend:', reward);
+                this.rewardSatoshi = reward;
+            },
+            error: (err) => {
+                console.error('Error fetching reward:', err);
+            }
+        });
+    }
 
     async start(isCaller: boolean) {
         if (this.isStreaming) {
