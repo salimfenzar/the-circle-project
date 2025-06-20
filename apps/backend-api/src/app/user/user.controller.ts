@@ -21,4 +21,19 @@ export class UserController {
   async findById(@Param('id') id: string): Promise<User | null> {
     return this.userService.findById(id);
   }
+
+  @Post(':id/follow/:streamerId')
+  async followStreamer(@Param('id') id: string, @Param('streamerId') streamerId: string) {
+    return this.userService.followStreamer(id, streamerId);
+  }
+
+  @Post(':id/unfollow/:streamerId')
+  async unfollowStreamer(@Param('id') id: string, @Param('streamerId') streamerId: string) {
+    return this.userService.unfollowStreamer(id, streamerId);
+  }
+
+  @Get(':id/followed')
+  async getFollowedStreamers(@Param('id') id: string) {
+    return this.userService.getFollowedStreamers(id);
+  }
 }

@@ -45,3 +45,17 @@
         </a>
     </div>
 </div>
+
+<div class="container my-5">
+  <h2 class="text-xl font-bold mb-3">Gevolgde Streamers</h2>
+  <ul *ngIf="followedStreamers.length; else geenGevolgde" class="list-group">
+    <li *ngFor="let streamer of followedStreamers" class="list-group-item d-flex align-items-center">
+      <img [src]="streamer.avatarUrl || 'assets/avatar.avif'" alt="avatar" class="rounded-circle me-2" width="40" height="40">
+      <span>{{ streamer.name }}</span>
+      <button class="ms-auto btn btn-danger btn-sm" (click)="unfollowStreamer(streamer._id)">Ontvolgen</button>
+    </li>
+  </ul>
+  <ng-template #geenGevolgde>
+    <p class="text-muted">Je volgt nog geen streamers.</p>
+  </ng-template>
+</div>

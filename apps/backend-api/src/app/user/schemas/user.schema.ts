@@ -19,12 +19,14 @@ export class User extends Document {
   @Prop()
   avatarUrl?: string;
 
-@Prop({ type: String, enum: UserGender, default: UserGender.Unknown })
-gender: UserGender;
+  @Prop({ type: String, enum: UserGender, default: UserGender.Unknown })
+  gender: UserGender;
 
-@Prop({ type: String, enum: UserRole, default: UserRole.Follower })
-role: UserRole;
+  @Prop({ type: String, enum: UserRole, default: UserRole.Follower })
+  role: UserRole;
 
+  @Prop({ type: [{ type: String, ref: 'User' }], default: [] })
+  followedStreamers: string[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
