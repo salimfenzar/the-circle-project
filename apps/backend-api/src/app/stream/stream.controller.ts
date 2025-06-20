@@ -38,7 +38,9 @@ export class StreamController {
         return this.streamService.endStream(id);
     }
     @Patch(':id/join')
-    async joinStream(@Param('id') id: string, @Body('userId') userId: string): Promise<Stream | null> {
+    @UseGuards(AuthGuard)
+    async joinStream(@Param('id') id: string, @Request() req: any): Promise<Stream | null> {
+        const userId = req.user.sub;
         return this.streamService.joinStream(id, userId);
     }
 

@@ -32,6 +32,7 @@ export class StreamingComponent implements OnInit, AfterViewInit {
   streamStartTime: Date | null = null;
   streamDuration = '00:00:00';
   private timerInterval: any;
+  currentStreamId: string | null = null;
 
 
   private webrtc = inject(WebRTCService);
@@ -72,18 +73,22 @@ export class StreamingComponent implements OnInit, AfterViewInit {
   if (localStream && this.localVideo?.nativeElement) {
     this.localVideo.nativeElement.srcObject = localStream;
   }
-  const streamData = {
-    startTime: this.streamStartTime,
-    title: 'Live Stream',
-    isActive: true,
-    //userId: '6853dfb79dd8407f2d6aacb3'
-  };
+  if (isCaller) {
+      const streamData = {
+          startTime: this.streamStartTime,
+          title: 'Live Stream',
+          isActive: true
+      };
+
+      this.streamService.createStream(streamData).subscribe({
+          next: (stream) => {
+              console.log('Stream created:', stream);
+              this.currentStreamId = stream._id ?? null;
+              console.log('Current Stream ID:', this.currentStreamId);
+          }
+      });
+  }
   
-  this.streamService.createStream(streamData).subscribe({
-    next: (stream) => {
-      console.log('Stream created:', stream);
-    }
-  });
 }
 
   stop() {
@@ -99,6 +104,12 @@ export class StreamingComponent implements OnInit, AfterViewInit {
     clearInterval(this.timerInterval); // ⬅️ deze regel toevoegen
     this.streamDuration = '00:00:00';
     this.streamStartTime = null;
+    this.streamService.stopStream(this.currentStreamId ?? '').subscribe({
+    next: (stream) => {
+      console.log('Stream stopped:', stream);
+    }
+  });
+  this.currentStreamId = null; //reset de huidige stream ID
   }
 
 
