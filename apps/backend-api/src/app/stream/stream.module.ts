@@ -7,6 +7,8 @@ import { ChatMessage, ChatMessageSchema } from './schemas/chat.schema';
 import { StreamService } from './stream.sevice';
 import { StreamController } from './stream.controller';
 import { SignalingGateway } from './signaling.gateway';
+import { AuthModule } from '../auth/auth.module';
+import { JwtModule } from '@nestjs/jwt';
 
 import { ChatService } from './chat/chat.service';
 import { ChatGateway } from './chat/chat.gateway';
@@ -16,7 +18,7 @@ import { ChatController } from './chat/chat.controller';
     MongooseModule.forFeature([
       { name: Stream.name, schema: StreamSchema },
       { name: ChatMessage.name, schema: ChatMessageSchema },
-    ]),
+    ]), AuthModule, JwtModule,
   ],
   controllers: [StreamController, ChatController],
   providers: [

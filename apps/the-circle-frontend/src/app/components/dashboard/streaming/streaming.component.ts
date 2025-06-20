@@ -12,6 +12,7 @@ import { WebRTCService } from './webrtc.service';
 import { ChatService } from '../../services/chat.service';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { StreamService } from './streaming.service';
 
 @Component({
   selector: 'avans-nx-workshop-streaming',
@@ -44,7 +45,7 @@ export class StreamingComponent implements OnInit, AfterViewInit {
   userName = 'Yumnie';       // ← idem
   streamId = '';             // ← dynamisch uit URL
   
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private streamService: StreamService) {}
 
   async start(isCaller: boolean) {
     if (this.isStreaming) {
@@ -63,20 +64,6 @@ export class StreamingComponent implements OnInit, AfterViewInit {
   this.startTimer();
   this.updateStreamDuration();
 
-  // 🔥 Notify backend of new stream
-  this.http.post('http://localhost:3000/streams', {
-    userId: this.userId,
-    startTime: this.streamStartTime.toISOString(),
-    isActive: true,
-    title: 'My Stream Title', // optionally dynamic
-  }).subscribe({
-    next: (stream: any) => {
-      console.log('Stream registered', stream);
-      this.streamId = stream._id;
-    },
-    error: (err) => console.error('Error registering stream', err)
-  });
-
   if (this.remoteVideo?.nativeElement) {
     this.remoteVideo.nativeElement.srcObject = this.webrtc.remoteStream;
   }
@@ -85,9 +72,19 @@ export class StreamingComponent implements OnInit, AfterViewInit {
   if (localStream && this.localVideo?.nativeElement) {
     this.localVideo.nativeElement.srcObject = localStream;
   }
+  const streamData = {
+    startTime: this.streamStartTime,
+    title: 'Live Stream',
+    isActive: true,
+    //userId: '6853dfb79dd8407f2d6aacb3'
+  };
+  
+  this.streamService.createStream(streamData).subscribe({
+    next: (stream) => {
+      console.log('Stream created:', stream);
+    }
+  });
 }
-
-
 
   stop() {
     this.webrtc.stopConnection();

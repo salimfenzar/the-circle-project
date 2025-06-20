@@ -1,16 +1,22 @@
 // streams/stream.controller.ts
-import { Body, Controller, Get, Param, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Put, Request, UseGuards } from '@nestjs/common';
 import { StreamService } from './stream.sevice';
 import { CreateStreamDto } from './dto/create-stream.dto';
 import { Stream } from './schemas/stream.schema';
+import { AuthGuard } from '../auth/auth.guards';
 
 @Controller('streams')
 export class StreamController {
     constructor(private readonly streamService: StreamService) {}
 
     @Post()
-    async create(@Body() dto: CreateStreamDto): Promise<Stream> {
-        return this.streamService.create(dto);
+    @UseGuards(AuthGuard)
+    async create(@Body() dto: CreateStreamDto, @Request() req: any): Promise<Stream> {
+        console.log('request: ' + req.user.sub);
+
+        const userId = req.user.sub;
+        console.log('Creating stream for user:', userId);
+        return this.streamService.create(dto, userId);
     }
 
     @Get()
