@@ -30,9 +30,10 @@ export class StreamingComponent implements AfterViewInit {
     streamStartTime: Date | null = null;
     streamDuration: string = '00:00:00';
     currentStreamId: string | null = null;
-    private timerInterval: any;
     rewardSatoshi: number = 0;
+    comboMultiplier: number = 1;
 
+    private timerInterval: any;
     private webrtc = inject(WebRTCService);
     private http = inject(HttpClient);
 
@@ -135,13 +136,20 @@ export class StreamingComponent implements AfterViewInit {
             const elapsed = Math.floor(
                 (now.getTime() - this.streamStartTime.getTime()) / 1000
             );
+
             const hours = String(Math.floor(elapsed / 3600)).padStart(2, '0');
             const minutes = String(Math.floor((elapsed % 3600) / 60)).padStart(
                 2,
                 '0'
             );
             const seconds = String(elapsed % 60).padStart(2, '0');
+
             this.streamDuration = `${hours}:${minutes}:${seconds}`;
+
+            // Combo multiplier
+            const comboStep = 5; // tijdelijk 5 voor testen, normally 3600
+            const comboLevel = Math.floor(elapsed / comboStep);
+            this.comboMultiplier = Math.pow(2, comboLevel);
         }
     }
 

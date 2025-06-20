@@ -22,7 +22,7 @@ export class RewardService {
         let currentReward = 1;
 
         // Calculate satoshi per hour
-        const hours = Math.floor(durationInSeconds / 3600); // Change division for testing purposes
+        const hours = Math.floor(durationInSeconds / 5); // Change division for testing purposes (normally 3600 for 1 hour)
         for (let i = 1; i <= hours; i++) {
             totalReward += currentReward;
             console.log(`Sec ${i}: +${currentReward} satoshi`);

@@ -126,3 +126,29 @@ input[type='text'] {
 .info-box {
     white-space: nowrap;
 }
+
+.combo-badge {
+    background: gold;
+    color: black;
+    font-weight: bold;
+    border-radius: 12px;
+    padding: 4px 8px;
+    margin-left: 8px;
+    font-size: 0.75rem;
+    display: inline-block;
+    animation: pulse 1s infinite;
+    box-shadow: 0 0 6px rgba(255, 215, 0, 0.7);
+    pointer-events: none;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
