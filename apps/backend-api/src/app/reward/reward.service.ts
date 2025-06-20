@@ -17,8 +17,18 @@ export class RewardService {
 
     calculateReward(durationInSeconds: number): number {
         if (durationInSeconds <= 0) return 0;
-        // return Math.floor(durationInSeconds / 3600); // 1 satoshi per uur
-        return Math.floor(durationInSeconds); // per seconde voor test
+
+        let totalReward = 0;
+        let currentReward = 1;
+
+        // Calculate satoshi per hour
+        const hours = Math.floor(durationInSeconds / 3600); // Change division for testing purposes
+        for (let i = 1; i <= hours; i++) {
+            totalReward += currentReward;
+            console.log(`Sec ${i}: +${currentReward} satoshi`);
+            currentReward *= 2;
+        }
+        return totalReward;
     }
 
     async applyRewardToUser(userId: string, reward: number): Promise<void> {
