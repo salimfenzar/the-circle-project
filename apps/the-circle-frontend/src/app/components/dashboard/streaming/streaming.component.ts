@@ -56,23 +56,18 @@ export class StreamingComponent implements OnInit, AfterViewInit {
   this.showLocal = isCaller;
   this.showRemote = !isCaller;
 
-  await new Promise((resolve) => setTimeout(resolve)); // DOM laten updaten 
-
-
-  await this.webrtc.startConnection();
+  
   this.isStreaming = true;
+  const localStream = await this.webrtc.initLocalStream(isCaller, "Template name"); // Todo: replace with actual name
+  if (localStream) this.localVideo.nativeElement.srcObject = localStream;
+  await this.webrtc.startConnection();
+  this.remoteVideo.nativeElement.srcObject = this.webrtc.remoteStream;
+
+
   this.streamStartTime = new Date();
   this.startTimer();
   this.updateStreamDuration();
-
-  if (this.remoteVideo?.nativeElement) {
-    this.remoteVideo.nativeElement.srcObject = this.webrtc.remoteStream;
-  }
-  const localStream = await this.webrtc.initLocalStream(isCaller, this.streamId);
-
-  if (localStream && this.localVideo?.nativeElement) {
-    this.localVideo.nativeElement.srcObject = localStream;
-  }
+  
   if (isCaller) {
       const streamData = {
           startTime: this.streamStartTime,
@@ -113,18 +108,18 @@ export class StreamingComponent implements OnInit, AfterViewInit {
   }
 
 
-    updateStreamDuration() {
-      if (this.streamStartTime) {
-        const now = new Date();
-        const elapsed = Math.floor((now.getTime() - this.streamStartTime.getTime()) / 1000);
-        const hours = String(Math.floor(elapsed / 3600)).padStart(2, '0');
-        const minutes = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
-        const seconds = String(elapsed % 60).padStart(2, '0');
-        this.streamDuration = `${hours}:${minutes}:${seconds}`;
-      }
+  updateStreamDuration() {
+    if (this.streamStartTime) {
+      const now = new Date();
+      const elapsed = Math.floor((now.getTime() - this.streamStartTime.getTime()) / 1000);
+      const hours = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+      const seconds = String(elapsed % 60).padStart(2, '0');
+      this.streamDuration = `${hours}:${minutes}:${seconds}`;
     }
+  }
 
-    startTimer() {
+  startTimer() {
     this.timerInterval = setInterval(() => {
       this.updateStreamDuration();
     }, 1000); // elke seconde bijwerken

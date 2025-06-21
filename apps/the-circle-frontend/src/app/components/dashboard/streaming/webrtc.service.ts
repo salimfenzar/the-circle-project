@@ -1,161 +1,108 @@
-import { Injectable } from '@angular/core';
-import { io, Socket } from 'socket.io-client';
+import { io } from 'socket.io-client';
 
-@Injectable({
-  providedIn: 'root'
-})
 export class WebRTCService {
-  private socket: Socket = io('http://localhost:3100');
+  private socket = io('http://192.168.1.139:3100'); // your backend signaling server port
 
-  private isCaller = false;
-  private streamId: string | null = null;
-
-  private localStream!: MediaStream;
+  private peerConnection!: RTCPeerConnection;
+  onRemoteStreamCallback?: (stream: MediaStream) => void;
+  localStream!: MediaStream;
   remoteStream!: MediaStream;
 
-  private peerConnections: { [id: string]: RTCPeerConnection } = {};
-  private iceConfig: RTCConfiguration = {
-    iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-  };
+  private isCaller = false;
+  private targetId: string | null = null;
+  public broadcasterList: { id: string; name: string }[] = [];
 
-  onRemoteStreamCallback?: (stream: MediaStream) => void;
-
-  constructor() {
-    this.setupSocketListeners();
+  getBroadcasters() {
+    this.socket.emit('get-broadcasters');
   }
 
-  private setupSocketListeners() {
-    this.socket.on('watcher', async ({ watcherId, streamId }: any) => {
-      if (!this.isCaller || streamId !== this.streamId) return;
+  onBroadcasterList(callback: (list: { id: string; name: string }[]) => void) {
+    this.socket.on('broadcaster-list', (list) => {
+      this.broadcasterList = list;
+      callback(list);
+    });
+  }
 
-      const peer = this.createPeerConnection(watcherId);
-
-      // Add local tracks to new peer connection
-      this.localStream.getTracks().forEach((track) => {
-        peer.addTrack(track, this.localStream);
-      });
-
-      const offer = await peer.createOffer();
-      await peer.setLocalDescription(offer);
-
-      this.socket.emit('offer', {
-        sdp: peer.localDescription,
-        target: watcherId,
-        streamId: this.streamId
-      });
+  constructor() {
+    this.socket.on('watcher', async (watcherId: string) => {
+      if (this.isCaller) {
+        this.targetId = watcherId;
+        await this.createOffer();
+      }
     });
 
     this.socket.on('offer', async (data: any) => {
-      if (this.isCaller || data.streamId !== this.streamId) return;
-
-      const { from: broadcasterId, sdp } = data;
-      const peer = this.createPeerConnection(broadcasterId);
-
-      await peer.setRemoteDescription(new RTCSessionDescription(sdp));
-      const answer = await peer.createAnswer();
-      await peer.setLocalDescription(answer);
-
-      this.socket.emit('answer', {
-        sdp: peer.localDescription,
-        target: broadcasterId,
-        streamId: this.streamId
-      });
+      if (!this.isCaller) {
+        this.targetId = data.from;
+        await this.handleOffer(data.sdp);
+      }
     });
 
     this.socket.on('answer', async (data: any) => {
-      if (!this.isCaller || data.streamId !== this.streamId) return;
-
-      const peer = this.peerConnections[data.from];
-      if (peer) {
-        await peer.setRemoteDescription(new RTCSessionDescription(data.sdp));
+      if (this.isCaller && data.from === this.targetId) {
+        await this.handleAnswer(data.sdp);
       }
     });
 
     this.socket.on('ice-candidate', async (data: any) => {
-      const peer = this.peerConnections[data.from];
-      if (peer && data.candidate) {
-        try {
-          await peer.addIceCandidate(new RTCIceCandidate(data.candidate));
-        } catch (err) {
-          console.error('Failed to add ICE candidate:', err);
-        }
+      if (data.from === this.targetId) {
+        await this.peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
       }
     });
-
-    this.socket.on('stop-broadcast', ({ from }: any) => {
-      this.closeConnection(from);
-    });
+  }
+  
+  setTargetId(id: string) {
+    this.targetId = id;
   }
 
-  private createPeerConnection(peerId: string): RTCPeerConnection {
-    let pc = this.peerConnections[peerId];
-    if (pc) return pc;
-
-    pc = new RTCPeerConnection(this.iceConfig);
-    this.peerConnections[peerId] = pc;
-
-    this.remoteStream = new MediaStream();
-
-    pc.ontrack = (event) => {
-      console.log('Track received:', event.track.kind);
-      if (!this.remoteStream.getTracks().includes(event.track)) {
-        this.remoteStream.addTrack(event.track);
-      }
-      if (this.onRemoteStreamCallback) {
-        this.onRemoteStreamCallback(this.remoteStream);
-      }
-    };
-
-    pc.onicecandidate = (event) => {
-      if (event.candidate) {
-        this.socket.emit('ice-candidate', {
-          candidate: event.candidate,
-          target: peerId,
-          streamId: this.streamId
-        });
-      }
-    };
-
-    pc.onconnectionstatechange = () => {
-      console.log(`Connection ${peerId} state:`, pc.connectionState);
-      if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
-        this.closeConnection(peerId);
-      }
-    };
-
-    return pc;
-  }
-
-  async initLocalStream(isCaller: boolean, streamId: string): Promise<MediaStream | null> {
+  async initLocalStream(isCaller: boolean, name?: string): Promise<MediaStream | null> {
     this.isCaller = isCaller;
-    this.streamId = streamId;
-
     if (isCaller) {
-      this.localStream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          frameRate: { ideal: 30 }
-        },
-        audio: true
-      });
-
-      this.socket.emit('start-broadcast', { streamId });
+      this.localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      this.socket.emit('start-broadcast', { name });
       return this.localStream;
     } else {
-      this.socket.emit('join-broadcast', { streamId });
+      this.socket.emit('join-broadcast', { targetId: this.targetId });
       return null;
     }
   }
 
   async startConnection() {
-    // nothing to do here since connections are created on demand
+    if (this.peerConnection && this.peerConnection.connectionState !== 'closed') {
+      console.log('[WebRTC] PeerConnection already exists, skipping start');
+      return;
+    }
+
+    this.peerConnection = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+
+    this.remoteStream = new MediaStream();
+
+    this.peerConnection.ontrack = (event) => {
+        console.log('Track received:', event.track.kind);
+        this.remoteStream.addTrack(event.track);
+        
+        // Set remote video srcObject once tracks are received
+        if (this.onRemoteStreamCallback) {
+            this.onRemoteStreamCallback(this.remoteStream);
+        }
+    };
+
+
+    this.peerConnection.onicecandidate = (event) => {
+      if (event.candidate && this.targetId) {
+        this.socket.emit('ice-candidate', { candidate: event.candidate, target: this.targetId });
+      }
+    };
+
+    if (this.isCaller && this.localStream) {
+      this.localStream.getTracks().forEach((track) =>
+        this.peerConnection.addTrack(track, this.localStream)
+      );
+    }
   }
 
   async stopConnection() {
-    Object.keys(this.peerConnections).forEach((peerId) => {
-      this.closeConnection(peerId);
-    });
+    this.peerConnection.close();
 
     if (this.localStream) {
       this.localStream.getTracks().forEach((track) => track.stop());
@@ -165,21 +112,54 @@ export class WebRTCService {
       this.remoteStream.getTracks().forEach((track) => track.stop());
     }
 
-    if (this.isCaller && this.streamId) {
-      this.socket.emit('stop-broadcast', { streamId: this.streamId });
-    }
+    // not sure if this is needed, stop-broadcast is not implemented in the backend
+    // if (this.isCaller && this.streamId) {
+    //   this.socket.emit('stop-broadcast', { streamId: this.streamId });
+    // }
 
-    this.peerConnections = {};
-    this.streamId = null;
     this.localStream = null as any;
     this.remoteStream = null as any;
   }
 
-  private closeConnection(peerId: string) {
-    const peer = this.peerConnections[peerId];
-    if (peer) {
-      peer.close();
-      delete this.peerConnections[peerId];
-    }
+  private async createOffer() {
+    await this.startConnection();
+    const offer = await this.peerConnection.createOffer();
+    await this.peerConnection.setLocalDescription(offer);
+    this.socket.emit('offer', { sdp: offer, target: this.targetId });
+  }
+
+  private async handleOffer(sdp: RTCSessionDescriptionInit) {
+  if (this.peerConnection?.signalingState !== 'stable') {
+    console.warn('[WebRTC] Ignoring offer: PeerConnection not stable');
+    return;
+  }
+
+  if (!this.peerConnection) {
+    await this.startConnection();
+  }
+
+  if (this.peerConnection.signalingState !== 'stable') {
+    console.warn('Unexpected signaling state:', this.peerConnection.signalingState);
+  }
+
+  // Set remote offer
+  await this.peerConnection.setRemoteDescription(new RTCSessionDescription(sdp));
+
+  // Add local tracks if needed
+  if (!this.isCaller && this.localStream) {
+    this.localStream.getTracks().forEach((track) =>
+      this.peerConnection.addTrack(track, this.localStream)
+    );
+  }
+
+  // Create and set answer
+  const answer = await this.peerConnection.createAnswer();
+  await this.peerConnection.setLocalDescription(answer);
+
+  this.socket.emit('answer', { sdp: answer, target: this.targetId });
+}
+
+  private async handleAnswer(sdp: RTCSessionDescriptionInit) {
+    await this.peerConnection.setRemoteDescription(new RTCSessionDescription(sdp));
   }
 }

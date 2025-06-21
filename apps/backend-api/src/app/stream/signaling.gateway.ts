@@ -17,7 +17,8 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
   @WebSocketServer()
   server: Server;
 
-  private broadcasterId: string | null = null;
+  // Map to keep track of connected broadcasters and their display names
+  private broadcasters: Map<string, string> = new Map(); // socketId -> displayName
 
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
@@ -25,26 +26,32 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
 
   handleDisconnect(client: Socket) {
     console.log(`Client disconnected: ${client.id}`);
-    if (client.id === this.broadcasterId) {
-      this.broadcasterId = null;
-      this.server.emit('broadcast-stopped');
-      console.log('Broadcaster disconnected, broadcast stopped');
+    if (this.broadcasters.delete(client.id)) {
+      this.server.emit('broadcaster-list', Array.from(this.broadcasters.entries()).map(([id, name]) => ({ id, name })));
+      console.log('Broadcaster removed:', client.id);
     }
+  }
+
+  @SubscribeMessage('get-broadcasters')
+    handleGetBroadcasters(@ConnectedSocket() client: Socket) {
+    client.emit('broadcaster-list', Array.from(this.broadcasters.entries()).map(([id, name]) => ({ id, name })));
   }
 
   @SubscribeMessage('start-broadcast')
-  handleStartBroadcast(@ConnectedSocket() client: Socket) {
-    this.broadcasterId = client.id;
-    console.log(`Broadcaster started: ${client.id}`);
-  }
+    handleStartBroadcast(@MessageBody() data: { name: string }, @ConnectedSocket() client: Socket) {
+    this.broadcasters.set(client.id, data.name);
+    this.server.emit('broadcaster-list', Array.from(this.broadcasters.entries()).map(([id, name]) => ({ id, name })));
+    console.log(`Broadcaster started: ${client.id} (${data.name})`);
+}
 
   @SubscribeMessage('join-broadcast')
-  handleJoinBroadcast(@ConnectedSocket() client: Socket) {
-    if (this.broadcasterId) {
-      this.server.to(this.broadcasterId).emit('watcher', client.id);
-      console.log(`Watcher ${client.id} joined, notified broadcaster ${this.broadcasterId}`);
+  handleJoinBroadcast(@MessageBody() data: { targetId: string }, @ConnectedSocket() client: Socket) {
+    if (this.broadcasters.has(data.targetId)) {
+      this.server.to(data.targetId).emit('watcher', client.id);
+      console.log(`Watcher ${client.id} joined broadcaster ${data.targetId}`);
     }
   }
+
 
   @SubscribeMessage('offer')
   handleOffer(@MessageBody() data: any, @ConnectedSocket() client: Socket) {

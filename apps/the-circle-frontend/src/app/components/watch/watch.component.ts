@@ -1,10 +1,11 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { WebRTCService } from '../dashboard/streaming/webrtc.service';
 
 @Component({
     selector: 'avans-nx-workshop-app-watch',
     standalone: true,
+    providers: [WebRTCService],
     templateUrl: './watch.component.html'
 })
 export class WatchComponent implements OnInit {
@@ -12,15 +13,17 @@ export class WatchComponent implements OnInit {
 
     constructor(
         private route: ActivatedRoute,
-        private rtcService: WebRTCService
+        // private webrtc: WebRTCService
     ) {}
 
+    private webrtc = inject(WebRTCService);
+
     async ngOnInit() {
+        console.log('Connecting to WebRTC service with id from route ' + this.route.snapshot.paramMap.get('id'));
         const streamId = this.route.snapshot.paramMap.get('id');
-        await this.rtcService.initLocalStream(false, streamId!); // join as viewer
-        this.rtcService.onRemoteStreamCallback = (stream: MediaStream) => {
-            this.remoteVideo.nativeElement.srcObject = stream;
-        };
-        await this.rtcService.startConnection();
+        this.webrtc.setTargetId(streamId!);
+        await this.webrtc.initLocalStream(false, ""); // No name needed for viewers
+        await this.webrtc.startConnection();
+        this.remoteVideo.nativeElement.srcObject = this.webrtc.remoteStream;
     }
 }
