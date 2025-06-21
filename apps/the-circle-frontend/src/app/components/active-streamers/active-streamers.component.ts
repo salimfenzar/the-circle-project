@@ -28,8 +28,11 @@ export class ActiveStreamersComponent implements OnInit {
     }
 
     joinStream(streamId: string) {
+        // get socketid by streamId
+        const socketId = this.activeStreams.find(stream => stream._id === streamId)?.socketId;
+
         // Redirect to the stream viewing page, passing the stream ID
-        this.router.navigate(['/watch', streamId]);
+        this.router.navigate(['/watch', socketId]);
         this.streamService.joinStream(streamId).subscribe({
             next: (stream) => {
                 console.log('Joined stream:', stream);

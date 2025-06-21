@@ -9,6 +9,7 @@ export class WebRTCService {
   remoteStream!: MediaStream;
 
   private isCaller = false;
+  private streamStarted = false;
   private targetId: string | null = null;
   public broadcasterList: { id: string; name: string }[] = [];
 
@@ -56,6 +57,9 @@ export class WebRTCService {
   }
 
   async initLocalStream(isCaller: boolean, name?: string): Promise<MediaStream | null> {
+    if (this.streamStarted) return this.localStream; // prevent double start
+    this.streamStarted = true;
+
     this.isCaller = isCaller;
     if (isCaller) {
       this.localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });

@@ -8,6 +8,9 @@ export class Stream extends Document {
   @Prop({ type: Types.ObjectId, ref: User.name, required: true })
   userId: Types.ObjectId;
 
+  @Prop()
+  socketId: string;
+
   @Prop({ required: true })
   startTime: Date;
 

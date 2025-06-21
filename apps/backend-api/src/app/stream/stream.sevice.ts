@@ -29,6 +29,10 @@ export class StreamService {
         return this.streamModel.findById(id).exec();
     }
 
+    async findBySocketId(socketId: string): Promise<Stream | null> {
+    return this.streamModel.findOne({ socketId, isActive: true }).exec();
+    }
+
     async endStream(id: string): Promise<Stream | null> {
         const stream = await this.streamModel.findById(id).exec();
         if (!stream) {

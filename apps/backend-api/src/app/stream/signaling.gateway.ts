@@ -9,6 +9,8 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { StreamService } from './stream.sevice';
+import { Inject } from '@nestjs/common';
 
 @WebSocketGateway(3100, {
   cors: { origin: '*' },
@@ -17,36 +19,48 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
   @WebSocketServer()
   server: Server;
 
-  // Map to keep track of connected broadcasters and their display names
-  private broadcasters: Map<string, string> = new Map(); // socketId -> displayName
+  constructor(
+    @Inject(StreamService) private readonly streamService: StreamService,
+  ) {}
 
-  handleConnection(client: Socket) {
+  async handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
   }
 
-  handleDisconnect(client: Socket) {
+  async handleDisconnect(client: Socket) {
     console.log(`Client disconnected: ${client.id}`);
-    if (this.broadcasters.delete(client.id)) {
-      this.server.emit('broadcaster-list', Array.from(this.broadcasters.entries()).map(([id, name]) => ({ id, name })));
-      console.log('Broadcaster removed:', client.id);
+    
+    const stream = await this.streamService.findBySocketId(client.id);
+    if (stream) {
+      await this.streamService.endStream(stream._id);
+      this.server.emit('broadcaster-list', await this.streamService.findActive());
+      console.log('Broadcaster disconnected and marked inactive in DB:', client.id);
     }
   }
 
   @SubscribeMessage('get-broadcasters')
-    handleGetBroadcasters(@ConnectedSocket() client: Socket) {
-    client.emit('broadcaster-list', Array.from(this.broadcasters.entries()).map(([id, name]) => ({ id, name })));
+  async handleGetBroadcasters(@ConnectedSocket() client: Socket) {
+    const active = await this.streamService.findActive();
+    client.emit('broadcaster-list', active.map((s) => ({ id: s.socketId, name: s.title })));
   }
 
   @SubscribeMessage('start-broadcast')
-    handleStartBroadcast(@MessageBody() data: { name: string }, @ConnectedSocket() client: Socket) {
-    this.broadcasters.set(client.id, data.name);
-    this.server.emit('broadcaster-list', Array.from(this.broadcasters.entries()).map(([id, name]) => ({ id, name })));
-    console.log(`Broadcaster started: ${client.id} (${data.name})`);
-}
+  async handleStartBroadcast(@MessageBody() data: { name: string }, @ConnectedSocket() client: Socket) {
+    const newStream = await this.streamService.create({
+      userId: 'anonymous', // Optional: you can tie this to an authenticated session
+      socketId: client.id,
+      title: data.name,
+      startTime: new Date(),
+      isActive: true,
+    }, "anonymous");
+    console.log('New stream saved to DB:', newStream);
+    this.server.emit('broadcaster-list', await this.streamService.findActive());
+  }
 
   @SubscribeMessage('join-broadcast')
-  handleJoinBroadcast(@MessageBody() data: { targetId: string }, @ConnectedSocket() client: Socket) {
-    if (this.broadcasters.has(data.targetId)) {
+  async handleJoinBroadcast(@MessageBody() data: { targetId: string }, @ConnectedSocket() client: Socket) {
+    const broadcaster = await this.streamService.findBySocketId(data.targetId);
+    if (broadcaster) {
       this.server.to(data.targetId).emit('watcher', client.id);
       console.log(`Watcher ${client.id} joined broadcaster ${data.targetId}`);
     }
