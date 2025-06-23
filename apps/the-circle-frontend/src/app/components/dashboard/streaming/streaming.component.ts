@@ -14,6 +14,10 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { StreamService } from './streaming.service';
 import { filter, first } from 'rxjs';
+<<<<<<< HEAD
+=======
+import { AuthService } from '../../auth/auth.service';
+>>>>>>> 4da00ba32258238f203890fe9fa49221c7619375
 
 @Component({
     selector: 'avans-nx-workshop-streaming',
@@ -48,12 +52,20 @@ export class StreamingComponent implements OnInit, AfterViewInit {
 
     chatMessages: any[] = [];
     newMessage = '';
+  private authService = inject(AuthService);
 
-    userId = 'u123'; // ← vervangen door echte user-id later
-    userName = 'Yumnie'; // ← idem
+    userId = ''; // ← vervangen door echte user-id later
+    userName = ''; // ← idem
     streamId = ''; // ← dynamisch uit URL
 
     ngOnInit(): void {
+          const user = this.authService.getUser();
+    if (!user) {
+      alert('Je moet ingelogd zijn om te streamen of chatten.');
+      return;
+    }
+    this.userId = user._id;
+    this.userName = user.name;
         this.route.params.subscribe((params) => {
             this.streamId = params['id'];
             console.log('Stream ID uit route:', this.streamId);

@@ -2,6 +2,10 @@ import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { HttpClient } from '@angular/common/http';
 import { SocketService } from './socket.service';
+<<<<<<< HEAD
+=======
+import { environment } from 'apps/the-circle-frontend/src/environments/environment';
+>>>>>>> 4da00ba32258238f203890fe9fa49221c7619375
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
