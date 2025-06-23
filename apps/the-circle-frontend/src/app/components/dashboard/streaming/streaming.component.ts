@@ -49,20 +49,20 @@ export class StreamingComponent implements OnInit, AfterViewInit {
 
     chatMessages: any[] = [];
     newMessage = '';
-  private authService = inject(AuthService);
+    private authService = inject(AuthService);
 
     userId = ''; // ← vervangen door echte user-id later
     userName = ''; // ← idem
     streamId = ''; // ← dynamisch uit URL
 
     ngOnInit(): void {
-          const user = this.authService.getUser();
-    if (!user) {
-      alert('Je moet ingelogd zijn om te streamen of chatten.');
-      return;
-    }
-    this.userId = user._id;
-    this.userName = user.name;
+        const user = this.authService.getUser();
+        if (!user) {
+            alert('Je moet ingelogd zijn om te streamen of chatten.');
+            return;
+        }
+        this.userId = user._id;
+        this.userName = user.name;
         this.route.params.subscribe((params) => {
             this.streamId = params['id'];
             console.log('Stream ID uit route:', this.streamId);
@@ -91,51 +91,57 @@ export class StreamingComponent implements OnInit, AfterViewInit {
         });
     }
 
-  async start(isCaller: boolean) {
-    console.log('Start streaming:', isCaller);
-    if (this.isStreaming) {
-      this.stop();
-      return;
+    async start(isCaller: boolean) {
+        console.log('Start streaming:', isCaller);
+        if (this.isStreaming) {
+            this.stop();
+            return;
+        }
+        this.showLocal = isCaller;
+        this.showRemote = !isCaller;
+        this.isStreaming = true;
+
+        const localStream = await this.webrtc.initLocalStream(
+            isCaller,
+            'Template name'
+        ); // Todo: replace with actual name
+        if (localStream) this.localVideo.nativeElement.srcObject = localStream;
+        await this.webrtc.startConnection();
+        this.remoteVideo.nativeElement.srcObject = this.webrtc.remoteStream;
+
+        this.streamStartTime = new Date();
+        this.startTimer();
+        this.updateStreamDuration();
+
+        if (isCaller) {
+            // Wait for socketId to be available
+            this.webrtc.socketId$
+                .pipe(
+                    filter((id): id is string => !!id),
+                    first()
+                )
+                .subscribe((socketId) => {
+                    const streamData = {
+                        startTime: this.streamStartTime!,
+                        title: 'Live Stream',
+                        socketId,
+                        isActive: true
+                    };
+
+                    this.streamService.createStream(streamData).subscribe({
+                        next: (stream) => {
+                            console.log('Stream created:', stream);
+                            this.currentStreamId = stream._id ?? null;
+                            console.log(
+                                'Current Stream ID:',
+                                this.currentStreamId
+                            );
+                            this.streamId = stream._id ?? '';
+                        }
+                    });
+                });
+        }
     }
-    this.showLocal = isCaller;
-    this.showRemote = !isCaller;
-    this.isStreaming = true;
-
-    const localStream = await this.webrtc.initLocalStream(isCaller, "Template name"); // Todo: replace with actual name
-    if (localStream) this.localVideo.nativeElement.srcObject = localStream;
-    await this.webrtc.startConnection();
-    this.remoteVideo.nativeElement.srcObject = this.webrtc.remoteStream;
-
-
-    this.streamStartTime = new Date();
-    this.startTimer();
-    this.updateStreamDuration();
-
-    if (isCaller) {
-      // Wait for socketId to be available
-      this.webrtc.socketId$
-        .pipe(
-          filter((id): id is string => !!id),
-          first()
-        )
-        .subscribe((socketId) => {
-          const streamData = {
-            startTime: this.streamStartTime!,
-            title: 'Live Stream',
-            socketId,
-            isActive: true
-          };
-
-          this.streamService.createStream(streamData).subscribe({
-            next: (stream) => {
-              console.log('Stream created:', stream);
-              this.currentStreamId = stream._id ?? null;
-              console.log('Current Stream ID:', this.currentStreamId);
-            }
-          });
-        });
-    }
-  }
 
     stop() {
         this.webrtc.stopConnection();
@@ -231,17 +237,23 @@ export class StreamingComponent implements OnInit, AfterViewInit {
     }
 
     sendMessage() {
+        console.log('🟡 sendMessage wordt aangeroepen');
+        console.log('✉️ Bericht:', this.newMessage);
+        console.log('📺 streamId in sendMessage:', this.streamId);
+
         if (!this.newMessage.trim()) return;
 
         const msg = {
-            userId: this.userId,
-            userName: this.userName,
             text: this.newMessage,
             streamId: this.streamId
         };
 
         this.chatService.sendMessage(msg);
-        this.chatMessages.push({ ...msg, timestamp: new Date().toISOString() });
+        this.chatMessages.push({
+            ...msg,
+            timestamp: new Date().toISOString(),
+            userName: this.userName // optioneel: alleen frontend-display
+        });
         this.newMessage = '';
     }
 }
