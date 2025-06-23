@@ -13,6 +13,7 @@ import { ChatService } from '../../services/chat.service';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { StreamService } from './streaming.service';
+import { AuthService } from '../../auth/auth.service'; // ✅ toevoegen
 
 @Component({
   selector: 'avans-nx-workshop-streaming',
@@ -34,57 +35,55 @@ export class StreamingComponent implements OnInit, AfterViewInit {
   private timerInterval: any;
   currentStreamId: string | null = null;
 
-
   private webrtc = inject(WebRTCService);
   private chatService = inject(ChatService);
   private route = inject(ActivatedRoute);
+  private authService = inject(AuthService); // ✅ injectie van authservice
 
   chatMessages: any[] = [];
   newMessage = '';
 
-  userId = 'u123';           // ← vervangen door echte user-id later
-  userName = 'Yumnie';       // ← idem
-  streamId = '';             // ← dynamisch uit URL
-  
+  streamId = '';
+  userId = '';
+  userName = '';
+
   constructor(private http: HttpClient, private streamService: StreamService) {}
 
   async start(isCaller: boolean) {
     if (this.isStreaming) {
-    this.stop();
-    return;
-  }
-  this.showLocal = isCaller;
-  this.showRemote = !isCaller;
+      this.stop();
+      return;
+    }
 
-  
-  this.isStreaming = true;
-  const localStream = await this.webrtc.initLocalStream(isCaller, "Template name"); // Todo: replace with actual name
-  if (localStream) this.localVideo.nativeElement.srcObject = localStream;
-  await this.webrtc.startConnection();
-  this.remoteVideo.nativeElement.srcObject = this.webrtc.remoteStream;
+    this.showLocal = isCaller;
+    this.showRemote = !isCaller;
 
+    this.isStreaming = true;
+    const localStream = await this.webrtc.initLocalStream(isCaller, 'Template name');
+    if (localStream) this.localVideo.nativeElement.srcObject = localStream;
+    await this.webrtc.startConnection();
+    this.remoteVideo.nativeElement.srcObject = this.webrtc.remoteStream;
 
-  this.streamStartTime = new Date();
-  this.startTimer();
-  this.updateStreamDuration();
-  
-  if (isCaller) {
+    this.streamStartTime = new Date();
+    this.startTimer();
+    this.updateStreamDuration();
+
+    if (isCaller) {
       const streamData = {
-          startTime: this.streamStartTime,
-          title: 'Live Stream',
-          isActive: true
+        startTime: this.streamStartTime,
+        title: 'Live Stream',
+        isActive: true,
       };
 
       this.streamService.createStream(streamData).subscribe({
-          next: (stream) => {
-              console.log('Stream created:', stream);
-              this.currentStreamId = stream._id ?? null;
-              console.log('Current Stream ID:', this.currentStreamId);
-          }
+        next: (stream) => {
+          console.log('Stream created:', stream);
+          this.currentStreamId = stream._id ?? null;
+          console.log('Current Stream ID:', this.currentStreamId);
+        },
       });
+    }
   }
-  
-}
 
   stop() {
     this.webrtc.stopConnection();
@@ -96,17 +95,18 @@ export class StreamingComponent implements OnInit, AfterViewInit {
     }
 
     this.isStreaming = false;
-    clearInterval(this.timerInterval); // ⬅️ deze regel toevoegen
+    clearInterval(this.timerInterval);
     this.streamDuration = '00:00:00';
     this.streamStartTime = null;
-    this.streamService.stopStream(this.currentStreamId ?? '').subscribe({
-    next: (stream) => {
-      console.log('Stream stopped:', stream);
-    }
-  });
-  this.currentStreamId = null; //reset de huidige stream ID
-  }
 
+    this.streamService.stopStream(this.currentStreamId ?? '').subscribe({
+      next: (stream) => {
+        console.log('Stream stopped:', stream);
+      },
+    });
+
+    this.currentStreamId = null;
+  }
 
   updateStreamDuration() {
     if (this.streamStartTime) {
@@ -122,21 +122,26 @@ export class StreamingComponent implements OnInit, AfterViewInit {
   startTimer() {
     this.timerInterval = setInterval(() => {
       this.updateStreamDuration();
-    }, 1000); // elke seconde bijwerken
+    }, 1000);
   }
 
-
   ngOnInit(): void {
-    this.route.params.subscribe(params => {
+    const user = this.authService.getUser(); // ✅ haal echte gebruiker op
+    if (!user) {
+      alert('Je moet ingelogd zijn om te streamen of chatten.');
+      return;
+    }
+    this.userId = user._id;
+    this.userName = user.name;
+
+    this.route.params.subscribe((params) => {
       this.streamId = params['id'];
       console.log('Stream ID uit route:', this.streamId);
 
-      // Chatgeschiedenis ophalen
       this.chatService.getMessages(this.streamId).subscribe((msgs) => {
         this.chatMessages = msgs.reverse();
       });
 
-      // Luister realtime naar nieuwe chatberichten
       this.chatService.onMessage((msg) => {
         if (msg.streamId === this.streamId) {
           this.chatMessages.push(msg);
@@ -155,14 +160,17 @@ export class StreamingComponent implements OnInit, AfterViewInit {
     if (!this.newMessage.trim()) return;
 
     const msg = {
-      userId: this.userId,
-      userName: this.userName,
       text: this.newMessage,
       streamId: this.streamId,
     };
 
-    this.chatService.sendMessage(msg);
-    this.chatMessages.push({ ...msg, timestamp: new Date().toISOString() });
+    this.chatService.sendMessage(msg); // ✅ stuur geen userId / userName meer mee
+    this.chatMessages.push({
+      ...msg,
+      userId: this.userId,
+      userName: this.userName,
+      timestamp: new Date().toISOString(),
+    });
     this.newMessage = '';
   }
 }
