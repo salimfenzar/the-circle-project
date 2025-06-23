@@ -25,10 +25,11 @@ export class AuthRegisterComponent {
         name: '',
         email: '',
         password: '',
+        confirmPassword: '',
         slogan: '',
         avatarUrl: '',
         gender: undefined as UserGender | undefined,
-        role: undefined as UserRole | undefined
+        role: UserRole.Unknown
     };
 
     genders = Object.values(UserGender);
@@ -39,7 +40,11 @@ export class AuthRegisterComponent {
 
     onSubmit() {
         this.errorMessage = ''; // reset vorige foutmelding
-
+          if (this.formData.password !== this.formData.confirmPassword) {
+            this.errorMessage = "Passwords do not match.";
+              return;
+            }
+        const { confirmPassword, ...registerData } = this.formData;
         this.authService.register(this.formData).subscribe({
             next: () => {
                 alert('Account succesvol aangemaakt!');
