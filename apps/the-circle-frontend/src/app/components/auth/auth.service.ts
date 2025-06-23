@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { UserGender, UserRole } from '../../../../../../libs/shared/src';
+import { Observable, tap } from 'rxjs';
+import { UserGender, UserRole } from '@avans-nx-workshop/shared';
 import { environment } from 'apps/the-circle-frontend/src/environments/environment';
 
 export interface RegisterDto {
@@ -23,9 +23,9 @@ export interface LoginDto {
   providedIn: 'root'
 })
 export class AuthService {
-  //private readonly API_URL = 'https://the-circle-project-1.onrender.com/auth';
   private readonly API_URL = environment.dataApiUrl + '/auth';
-  private readonly CURRENT_USER = 'currentuser';
+  private readonly TOKEN_KEY = 'access_token';
+  private readonly USER_KEY = 'currentuser';
 
   constructor(private http: HttpClient) {}
 
@@ -34,15 +34,33 @@ export class AuthService {
   }
 
   login(data: LoginDto): Observable<any> {
-    console.log(this.API_URL);
-    return this.http.post(`${this.API_URL}/login`, data);
+    return this.http.post<{ token: string; user: any }>(`${this.API_URL}/login`, data).pipe(
+      tap(response => {
+        this.saveSession(response.token, response.user);
+      })
+    );
+  }
+
+  logout() {
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.USER_KEY);
+  }
+
+  saveSession(token: string, user: any) {
+    localStorage.setItem(this.TOKEN_KEY, token);
+    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
   }
 
   getToken(): string | null {
-  const token = localStorage.getItem('access_token');
-  console.log('access_token:', token);
-  return token;
-}
+    return localStorage.getItem(this.TOKEN_KEY);
+  }
 
+  getUser(): { _id: string; name: string; email: string; role: string } | null {
+    const user = localStorage.getItem(this.USER_KEY);
+    return user ? JSON.parse(user) : null;
+  }
 
+  isLoggedIn(): boolean {
+    return !!this.getToken();
+  }
 }
