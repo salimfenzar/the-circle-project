@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { AuthService } from './auth.service';
@@ -16,7 +15,6 @@ import { UserGender, UserRole } from '../../../../../../libs/shared/src';
         CommonModule,
         FormsModule,
         HttpClientModule,
-        MatSnackBarModule,
         RouterModule
     ],
     templateUrl: './auth-register.component.html',

@@ -1,3 +1,6 @@
+<div *ngIf="activeStreams.length === 0" class="text-center text-gray-600 mt-8 fs-2">
+  Er zijn momenteel geen actieve streamers.
+</div>
 <li
     *ngFor="let stream of activeStreams"
     class="p-4 border rounded shadow flex items-center justify-between space-x-4"
