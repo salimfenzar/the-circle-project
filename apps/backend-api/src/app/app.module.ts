@@ -6,7 +6,6 @@ import { StreamModule } from './stream/stream.module';
 import { SignalingGateway } from './stream/signaling.gateway';
 import { RewardModule } from './reward/reward.module';
 
-// Je kunt hier ook je eigen config gebruiken via dotenv of environment.ts
 //const MONGO_DB_CONNECTION_STRING = process.env.MONGO_URL;
 const MONGO_DB_CONNECTION_STRING = 'mongodb://localhost:27017/the-circle'; //localhost
 

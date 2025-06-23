@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { UserGender, UserRole } from '../../../../../../libs/shared/src';
 import { environment } from 'apps/the-circle-frontend/src/environments/environment';
 
@@ -23,8 +23,8 @@ export interface LoginDto {
     providedIn: 'root'
 })
 export class AuthService {
-    //private readonly API_URL = 'https://the-circle-project-1.onrender.com/auth';
     private readonly API_URL = environment.dataApiUrl + '/auth';
+    private readonly ACCESS_TOKEN = 'access_token';
     private readonly CURRENT_USER = 'currentuser';
 
     constructor(private http: HttpClient) {}
@@ -34,16 +34,38 @@ export class AuthService {
     }
 
     login(data: LoginDto): Observable<any> {
-        return this.http.post(`${this.API_URL}/login`, data);
+        return this.http
+            .post<{ token: string; user: any }>(`${this.API_URL}/login`, data)
+            .pipe(
+                tap((response) => {
+                    if (response.token) {
+                        localStorage.setItem(this.ACCESS_TOKEN, response.token);
+                    }
+                    if (response.user) {
+                        localStorage.setItem(
+                            this.CURRENT_USER,
+                            JSON.stringify(response.user)
+                        );
+                    }
+                })
+            );
+    }
+
+    logout(): void {
+        localStorage.removeItem(this.ACCESS_TOKEN);
+        localStorage.removeItem(this.CURRENT_USER);
     }
 
     getToken(): string | null {
-        const token = localStorage.getItem('access_token');
-        console.log('access_token:', token);
-        return token;
+        return localStorage.getItem(this.ACCESS_TOKEN);
     }
 
-    getCurrentUser() {
-        return this.http.get<{ rewardSatoshi: number }>(`${this.API_URL}/me`);
+    getCurrentUser(): { rewardSatoshi: number; [key: string]: any } | null {
+        const raw = localStorage.getItem(this.CURRENT_USER);
+        return raw ? JSON.parse(raw) : null;
+    }
+
+    isLoggedIn(): boolean {
+        return !!this.getToken();
     }
 }
