@@ -17,7 +17,7 @@ export class ActiveStreamersComponent implements OnInit {
     constructor(private http: HttpClient, private router: Router, private streamService: StreamService) {}
 
     ngOnInit(): void {
-        this.http.get<any[]>('http://localhost:3000/streams/active').subscribe({
+        this.http.get<any[]>(`http://${window.location.hostname}:3000/streams/active`).subscribe({
             next: (streams) => {
                 this.activeStreams = streams;
             },
