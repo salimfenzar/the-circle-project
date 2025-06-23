@@ -1,18 +1,4 @@
 import {
-<<<<<<< HEAD
-    Body,
-    Controller,
-    Get,
-    Param,
-    Post,
-    Req,
-    UseGuards
-} from '@nestjs/common';
-import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { User } from './schemas/user.schema';
-import { AuthGuard } from '@nestjs/passport';
-=======
   Body,
   Controller,
   Get,
@@ -26,7 +12,6 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './schemas/user.schema';
 import { AuthGuard } from '../auth/auth.guards'; // Zorg dat dit pad klopt
->>>>>>> 4da00ba32258238f203890fe9fa49221c7619375
 
 @Controller('users')
 export class UserController {
@@ -42,11 +27,6 @@ export class UserController {
         return this.userService.findAll();
     }
 
-<<<<<<< HEAD
-    @UseGuards(AuthGuard('jwt'))
-=======
-
->>>>>>> 4da00ba32258238f203890fe9fa49221c7619375
     @Get('current')
       @UseGuards(AuthGuard)
     async getCurrent(@Req() req) {
@@ -55,12 +35,6 @@ export class UserController {
         return { rewardSatoshi: user?.rewardSatoshi ?? 0 };
     }
 
-<<<<<<< HEAD
-    @Get(':id')
-    async findById(@Param('id') id: string): Promise<User | null> {
-        return this.userService.findById(id);
-    }
-=======
   // Deze route moet **VOOR** de dynamische ':id' route komen
   @Get('me')
   @UseGuards(AuthGuard)
@@ -73,5 +47,4 @@ export class UserController {
   async findById(@Param('id') id: string): Promise<User | null> {
     return this.userService.findById(id);
   }
->>>>>>> 4da00ba32258238f203890fe9fa49221c7619375
 }
