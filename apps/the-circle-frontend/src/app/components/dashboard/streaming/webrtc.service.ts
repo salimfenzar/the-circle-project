@@ -1,7 +1,15 @@
-import { io } from 'socket.io-client';
+import { SocketService } from '../../services/socket.service';
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
-export class WebRTCService {
-  private socket = io('http://192.168.1.139:3100'); // your backend signaling server port
+@Injectable({
+  providedIn: 'root'
+})
+export class WebRTCService { 
+  private socket = this.socketService.getSocket(); // your backend signaling server port
+
+  public socketId$ = new BehaviorSubject<string | null>(null);
+
 
   private peerConnection!: RTCPeerConnection;
   onRemoteStreamCallback?: (stream: MediaStream) => void;
@@ -24,7 +32,12 @@ export class WebRTCService {
     });
   }
 
-  constructor() {
+  constructor(private socketService: SocketService) {
+
+    this.socket.on('broadcast-started', (data: { streamId: string }) => {
+      this.socketId$.next(data.streamId);
+    });
+
     this.socket.on('watcher', async (watcherId: string) => {
       if (this.isCaller) {
         this.targetId = watcherId;

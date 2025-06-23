@@ -22,8 +22,6 @@
         <input type="text" [(ngModel)]="newMessage" name="message" placeholder="Type a message..." />
         <button class="sendmsg-btn" type="submit" [disabled]="!newMessage.trim()">Send</button>
       </form>
-      
-      <button (click)="start(false)">Join Stream</button>
       </div>
     </div>
 </div>

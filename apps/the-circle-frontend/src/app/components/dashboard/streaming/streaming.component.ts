@@ -13,6 +13,7 @@ import { ChatService } from '../../services/chat.service';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { StreamService } from './streaming.service';
+import { filter, first } from 'rxjs';
 
 @Component({
   selector: 'avans-nx-workshop-streaming',
@@ -49,42 +50,50 @@ export class StreamingComponent implements OnInit, AfterViewInit {
   constructor(private http: HttpClient, private streamService: StreamService) {}
 
   async start(isCaller: boolean) {
+    console.log('Start streaming:', isCaller);
     if (this.isStreaming) {
-    this.stop();
-    return;
-  }
-  this.showLocal = isCaller;
-  this.showRemote = !isCaller;
+      this.stop();
+      return;
+    }
+    this.showLocal = isCaller;
+    this.showRemote = !isCaller;
+    this.isStreaming = true;
 
-  
-  this.isStreaming = true;
-  const localStream = await this.webrtc.initLocalStream(isCaller, "Template name"); // Todo: replace with actual name
-  if (localStream) this.localVideo.nativeElement.srcObject = localStream;
-  await this.webrtc.startConnection();
-  this.remoteVideo.nativeElement.srcObject = this.webrtc.remoteStream;
+    const localStream = await this.webrtc.initLocalStream(isCaller, "Template name"); // Todo: replace with actual name
+    if (localStream) this.localVideo.nativeElement.srcObject = localStream;
+    await this.webrtc.startConnection();
+    this.remoteVideo.nativeElement.srcObject = this.webrtc.remoteStream;
 
 
-  this.streamStartTime = new Date();
-  this.startTimer();
-  this.updateStreamDuration();
-  
-  if (isCaller) {
-      const streamData = {
-          startTime: this.streamStartTime,
-          title: 'Live Stream',
-          isActive: true
-      };
+    this.streamStartTime = new Date();
+    this.startTimer();
+    this.updateStreamDuration();
 
-      this.streamService.createStream(streamData).subscribe({
-          next: (stream) => {
+    if (isCaller) {
+      // Wait for socketId to be available
+      this.webrtc.socketId$
+        .pipe(
+          filter((id): id is string => !!id),
+          first()
+        )
+        .subscribe((socketId) => {
+          const streamData = {
+            startTime: this.streamStartTime!,
+            title: 'Live Stream',
+            socketId, // ✅ Now this is guaranteed to be non-null
+            isActive: true
+          };
+
+          this.streamService.createStream(streamData).subscribe({
+            next: (stream) => {
               console.log('Stream created:', stream);
               this.currentStreamId = stream._id ?? null;
               console.log('Current Stream ID:', this.currentStreamId);
-          }
-      });
+            }
+          });
+        });
+    }
   }
-  
-}
 
   stop() {
     this.webrtc.stopConnection();

@@ -12,7 +12,7 @@ import { Server, Socket } from 'socket.io';
 import { StreamService } from './stream.sevice';
 import { Inject } from '@nestjs/common';
 
-@WebSocketGateway(3100, {
+@WebSocketGateway({
   cors: { origin: '*' },
 })
 export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -46,14 +46,10 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
 
   @SubscribeMessage('start-broadcast')
   async handleStartBroadcast(@MessageBody() data: { name: string }, @ConnectedSocket() client: Socket) {
-    const newStream = await this.streamService.create({
-      userId: 'anonymous', // Optional: you can tie this to an authenticated session
-      socketId: client.id,
-      title: data.name,
-      startTime: new Date(),
-      isActive: true,
-    }, "anonymous");
-    console.log('New stream saved to DB:', newStream);
+    
+    // Emit the clientid back to the creator
+    client.emit('broadcast-started', { streamId: client.id });
+    
     this.server.emit('broadcaster-list', await this.streamService.findActive());
   }
 
