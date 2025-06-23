@@ -5,23 +5,19 @@ import {
   MessageBody,
   ConnectedSocket,
   OnGatewayConnection,
-  OnGatewayDisconnect,
+  OnGatewayDisconnect
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
-import { UseGuards } from '@nestjs/common';
-import { WsJwtGuard } from '../../auth/ws-jwt.guard'; // pas pad aan indien nodig
 
 @WebSocketGateway({ cors: true })
-@UseGuards(WsJwtGuard)
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
 
-  constructor(private chatService: ChatService) {}
+  constructor(private chatService: ChatService) { }
 
   handleConnection(client: Socket) {
-    const user = client['user'];
-    console.log(`✅ Client connected: ${client.id} – User: ${user?.name || 'Unknown'}`);
+    console.log(`✅ Client connected: ${client.id}`);
   }
 
   handleDisconnect(client: Socket) {
@@ -30,31 +26,23 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('chat-message')
   async handleChatMessage(
-    @MessageBody() data: { text: string; streamId: string },
+    @MessageBody() data: {
+      userId: string;
+      userName: string;
+      text: string;
+      streamId: string;
+    },
     @ConnectedSocket() client: Socket
   ) {
-    const user = client['user'];
-    if (!user) {
-      console.warn('⛔ Chat message ontvangen zonder geldige gebruiker');
-      return;
-    }
-
-    const message = {
-      userId: user.sub,
-      userName: user.name,
-      text: data.text,
-      streamId: data.streamId,
-    };
-
     await this.chatService.saveMessage(
-      message.userId,
-      message.userName,
-      message.text,
-      message.streamId
+      data.userId,
+      data.userName,
+      data.text,
+      data.streamId
     );
 
     this.server.emit('chat-message', {
-      ...message,
+      ...data,
       timestamp: new Date().toISOString(),
     });
   }

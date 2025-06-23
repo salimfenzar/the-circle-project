@@ -15,13 +15,21 @@ export const appRoutes: Route[] = [
     {
         path: 'dashboard',
         component: DashboardComponent
-    },
+  },
+  {
+    path: 'streaming',
+    redirectTo: 'streaming/stream123', // 👈 fallback voor wanneer er geen ID is
+    pathMatch: 'full'
+  },
     {
+<<<<<<< HEAD
+=======
   path: 'streaming',
   component: StreamingComponent,
   canActivate: [authGuard]
 },
     {
+>>>>>>> 4da00ba32258238f203890fe9fa49221c7619375
       path: 'streaming/:id',
         component: StreamingComponent,
          canActivate: [authGuard]
@@ -47,6 +55,10 @@ export const appRoutes: Route[] = [
 
     {
         path: 'watch/:id',
+<<<<<<< HEAD
+        loadComponent: () => import('./components/watch/watch.component').then(m => m.WatchComponent),
+         canActivate: [authGuard]
+=======
         loadComponent: () =>
             import('./components/watch/watch.component').then(
                 (m) => m.WatchComponent
@@ -60,5 +72,7 @@ export const appRoutes: Route[] = [
                 (m) => m.ProfileComponent
             ),
              canActivate: [authGuard]
+>>>>>>> 4da00ba32258238f203890fe9fa49221c7619375
     }
+
 ];

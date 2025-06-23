@@ -1,12 +1,19 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+
 import { User, UserSchema } from './schemas/user.schema';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
-import { AuthModule } from '../auth/auth.module';
-import { JwtService } from '@nestjs/jwt'; // Zorg dat JwtService beschikbaar is in UserModule
 
 @Module({
+<<<<<<< HEAD
+    imports: [
+        MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])
+    ],
+    controllers: [UserController],
+    providers: [UserService],
+    exports: [UserService, MongooseModule]
+=======
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     forwardRef(() => AuthModule), // dit zorgt dat AuthModule beschikbaar is inclusief JwtService via exports
@@ -14,6 +21,6 @@ import { JwtService } from '@nestjs/jwt'; // Zorg dat JwtService beschikbaar is 
   controllers: [UserController],
   providers: [UserService, JwtService], // Voeg JwtService toe aan providers
   exports: [UserService],
+>>>>>>> 4da00ba32258238f203890fe9fa49221c7619375
 })
 export class UserModule {}
-
