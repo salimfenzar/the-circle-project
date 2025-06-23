@@ -14,6 +14,7 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { StreamService } from './streaming.service';
 import { filter, first } from 'rxjs';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
     selector: 'avans-nx-workshop-streaming',
@@ -48,6 +49,7 @@ export class StreamingComponent implements OnInit, AfterViewInit {
 
     chatMessages: any[] = [];
     newMessage = '';
+  private authService = inject(AuthService);
 
     userId = 'u123'; // ← vervangen door echte user-id later
     userName = 'Yumnie'; // ← idem
