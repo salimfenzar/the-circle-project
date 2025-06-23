@@ -130,6 +130,7 @@ export class StreamingComponent implements OnInit, AfterViewInit {
         }
 
         clearInterval(this.timerInterval);
+        this.comboMultiplier = 1;
         this.streamDuration = '00:00:00';
         this.streamStartTime = null;
         this.streamService.stopStream(this.currentStreamId ?? '').subscribe({
