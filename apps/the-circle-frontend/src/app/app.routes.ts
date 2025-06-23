@@ -13,14 +13,14 @@ export const appRoutes: Route[] = [
     {
         path: 'dashboard',
         component: DashboardComponent
-  },
-  {
-    path: 'streaming',
-    redirectTo: 'streaming/stream123', // 👈 fallback voor wanneer er geen ID is
-    pathMatch: 'full'
-  },
+    },
     {
-      path: 'streaming/:id',
+        path: 'streaming',
+        redirectTo: 'streaming/stream123', // 👈 fallback voor wanneer er geen ID is
+        pathMatch: 'full'
+    },
+    {
+        path: 'streaming/:id',
         component: StreamingComponent
     },
 
@@ -43,7 +43,16 @@ export const appRoutes: Route[] = [
 
     {
         path: 'watch/:id',
-        loadComponent: () => import('./components/watch/watch.component').then(m => m.WatchComponent)
+        loadComponent: () =>
+            import('./components/watch/watch.component').then(
+                (m) => m.WatchComponent
+            )
+    },
+    {
+        path: 'profile',
+        loadComponent: () =>
+            import('./components/Profile/profile.component').then(
+                (m) => m.ProfileComponent
+            )
     }
-
 ];
