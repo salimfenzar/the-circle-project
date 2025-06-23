@@ -48,7 +48,9 @@ export class StreamController {
     }
 
     @Patch(':id/end')
-    async endStream(@Param('id') id: string): Promise<Stream | null> {
+    async endStream(
+        @Param('id') id: string
+    ): Promise<{ stream: Stream; reward: number } | null> {
         return this.streamService.endStream(id);
     }
     @Patch(':id/join')
