@@ -17,6 +17,11 @@ export const appRoutes: Route[] = [
         component: DashboardComponent
     },
     {
+  path: 'streaming',
+  component: StreamingComponent,
+  canActivate: [authGuard]
+},
+    {
       path: 'streaming/:id',
         component: StreamingComponent,
          canActivate: [authGuard]

@@ -51,11 +51,18 @@ export class StreamingComponent implements OnInit, AfterViewInit {
     newMessage = '';
   private authService = inject(AuthService);
 
-    userId = 'u123'; // ← vervangen door echte user-id later
-    userName = 'Yumnie'; // ← idem
+    userId = ''; // ← vervangen door echte user-id later
+    userName = ''; // ← idem
     streamId = ''; // ← dynamisch uit URL
 
     ngOnInit(): void {
+          const user = this.authService.getUser();
+    if (!user) {
+      alert('Je moet ingelogd zijn om te streamen of chatten.');
+      return;
+    }
+    this.userId = user._id;
+    this.userName = user.name;
         this.route.params.subscribe((params) => {
             this.streamId = params['id'];
             console.log('Stream ID uit route:', this.streamId);
