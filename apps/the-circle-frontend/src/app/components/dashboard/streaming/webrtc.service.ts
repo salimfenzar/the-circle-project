@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
 
 export class WebRTCService {
-    private socket = io('http://145.49.27.165:3100'); // your backend signaling server port
+    private socket = io('http://192.168.1.139:3100'); // your backend signaling server port
 
     private peerConnection!: RTCPeerConnection;
     onRemoteStreamCallback?: (stream: MediaStream) => void;
@@ -9,7 +9,22 @@ export class WebRTCService {
     remoteStream!: MediaStream;
 
     private isCaller = false;
+    private streamStarted = false;
     private targetId: string | null = null;
+    public broadcasterList: { id: string; name: string }[] = [];
+
+    getBroadcasters() {
+        this.socket.emit('get-broadcasters');
+    }
+
+    onBroadcasterList(
+        callback: (list: { id: string; name: string }[]) => void
+    ) {
+        this.socket.on('broadcaster-list', (list) => {
+            this.broadcasterList = list;
+            callback(list);
+        });
+    }
 
     constructor() {
         this.socket.on('watcher', async (watcherId: string) => {
@@ -41,28 +56,42 @@ export class WebRTCService {
         });
     }
 
-    async initLocalStream(isCaller: boolean): Promise<MediaStream | null> {
+    setTargetId(id: string) {
+        this.targetId = id;
+    }
+
+    async initLocalStream(
+        isCaller: boolean,
+        name?: string
+    ): Promise<MediaStream | null> {
+        if (this.streamStarted) return this.localStream; // prevent double start
+        this.streamStarted = true;
+
         this.isCaller = isCaller;
         if (isCaller) {
             this.localStream = await navigator.mediaDevices.getUserMedia({
-                video: {
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 },
-                    frameRate: { ideal: 30 }
-                },
+                video: true,
                 audio: true
             });
-            console.log(this.localStream.getVideoTracks()[0].getSettings()); //settigns van de video track
-
-            this.socket.emit('start-broadcast');
+            this.socket.emit('start-broadcast', { name });
             return this.localStream;
         } else {
-            this.socket.emit('join-broadcast');
+            this.socket.emit('join-broadcast', { targetId: this.targetId });
             return null;
         }
     }
 
     async startConnection() {
+        if (
+            this.peerConnection &&
+            this.peerConnection.connectionState !== 'closed'
+        ) {
+            console.log(
+                '[WebRTC] PeerConnection already exists, skipping start'
+            );
+            return;
+        }
+
         this.peerConnection = new RTCPeerConnection({
             iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
         });
@@ -98,19 +127,23 @@ export class WebRTCService {
     }
 
     async stopConnection() {
-        if (this.peerConnection) {
-            this.peerConnection.close();
-            this.peerConnection = null as any; // Reset peerConnection
-        }
+        this.peerConnection.close();
+
         if (this.localStream) {
             this.localStream.getTracks().forEach((track) => track.stop());
-            this.localStream = null as any; // Reset localStream
         }
+
         if (this.remoteStream) {
             this.remoteStream.getTracks().forEach((track) => track.stop());
-            this.remoteStream = null as any; // Reset remoteStream
         }
-        this.socket.emit('stop-broadcast');
+
+        // not sure if this is needed, stop-broadcast is not implemented in the backend
+        // if (this.isCaller && this.streamId) {
+        //   this.socket.emit('stop-broadcast', { streamId: this.streamId });
+        // }
+
+        this.localStream = null as any;
+        this.remoteStream = null as any;
     }
 
     private async createOffer() {
@@ -121,10 +154,28 @@ export class WebRTCService {
     }
 
     private async handleOffer(sdp: RTCSessionDescriptionInit) {
-        await this.startConnection();
+        if (this.peerConnection?.signalingState !== 'stable') {
+            console.warn('[WebRTC] Ignoring offer: PeerConnection not stable');
+            return;
+        }
+
+        if (!this.peerConnection) {
+            await this.startConnection();
+        }
+
+        if (this.peerConnection.signalingState !== 'stable') {
+            console.warn(
+                'Unexpected signaling state:',
+                this.peerConnection.signalingState
+            );
+        }
+
+        // Set remote offer
         await this.peerConnection.setRemoteDescription(
             new RTCSessionDescription(sdp)
         );
+
+        // Add local tracks if needed
         if (!this.isCaller && this.localStream) {
             this.localStream
                 .getTracks()
@@ -132,8 +183,11 @@ export class WebRTCService {
                     this.peerConnection.addTrack(track, this.localStream)
                 );
         }
+
+        // Create and set answer
         const answer = await this.peerConnection.createAnswer();
         await this.peerConnection.setLocalDescription(answer);
+
         this.socket.emit('answer', { sdp: answer, target: this.targetId });
     }
 

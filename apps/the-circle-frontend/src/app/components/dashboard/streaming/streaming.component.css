@@ -106,7 +106,6 @@ input[type='text'] {
     border: none;
     border-radius: 5px;
     color: white;
-    cursor: not-allowed;
     opacity: 0.7;
 }
 

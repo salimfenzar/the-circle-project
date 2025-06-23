@@ -3,25 +3,32 @@ import {
     ElementRef,
     ViewChild,
     inject,
-    AfterViewInit
+    AfterViewInit,
+    OnInit
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { WebRTCService } from './webrtc.service';
+import { ChatService } from '../../services/chat.service';
+import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { StreamingService } from './streaming.service';
+import { StreamService } from './streaming.service';
 
 @Component({
     selector: 'avans-nx-workshop-streaming',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, FormsModule],
     providers: [WebRTCService],
     templateUrl: './streaming.component.html',
     styleUrls: ['./streaming.component.css']
 })
-export class StreamingComponent implements AfterViewInit {
+export class StreamingComponent implements OnInit, AfterViewInit {
     @ViewChild('localVideo') localVideo!: ElementRef<HTMLVideoElement>;
     @ViewChild('remoteVideo') remoteVideo!: ElementRef<HTMLVideoElement>;
-    constructor(private streamingService: StreamingService) {}
+    constructor(
+        private http: HttpClient,
+        private streamService: StreamService
+    ) {}
 
     rewardedSatoshi = 0;
     showLocal = false;
@@ -35,10 +42,35 @@ export class StreamingComponent implements AfterViewInit {
 
     private timerInterval: any;
     private webrtc = inject(WebRTCService);
-    private http = inject(HttpClient);
+    private chatService = inject(ChatService);
+    private route = inject(ActivatedRoute);
 
-    ngOnInit() {
-        this.streamingService.getRewardSatoshi().subscribe({
+    chatMessages: any[] = [];
+    newMessage = '';
+
+    userId = 'u123'; // ← vervangen door echte user-id later
+    userName = 'Yumnie'; // ← idem
+    streamId = ''; // ← dynamisch uit URL
+
+    ngOnInit(): void {
+        this.route.params.subscribe((params) => {
+            this.streamId = params['id'];
+            console.log('Stream ID uit route:', this.streamId);
+
+            // Chatgeschiedenis ophalen
+            this.chatService.getMessages(this.streamId).subscribe((msgs) => {
+                this.chatMessages = msgs.reverse();
+            });
+
+            this.chatService.onMessage((msg) => {
+                if (msg.streamId === this.streamId) {
+                    this.chatMessages.push(msg);
+                }
+            });
+        });
+
+        // Beloning ophalen bij opstart
+        this.streamService.getRewardSatoshi().subscribe({
             next: (reward) => {
                 console.log('Reward received from backend:', reward);
                 this.rewardSatoshi = reward;
@@ -58,41 +90,38 @@ export class StreamingComponent implements AfterViewInit {
         this.showLocal = isCaller;
         this.showRemote = !isCaller;
 
-        await new Promise((resolve) => setTimeout(resolve)); // DOM updaten
-
-        const localStream = await this.webrtc.initLocalStream(isCaller);
-
-        if (localStream && this.localVideo?.nativeElement) {
-            this.localVideo.nativeElement.srcObject = localStream;
-        }
-
+        this.isStreaming = true;
+        const localStream = await this.webrtc.initLocalStream(
+            isCaller,
+            'Template name'
+        ); // Todo: replace with actual name
+        if (localStream) this.localVideo.nativeElement.srcObject = localStream;
         await this.webrtc.startConnection();
+        this.remoteVideo.nativeElement.srcObject = this.webrtc.remoteStream;
 
-        const userId = this.getCurrentUserIdFromToken();
-        this.http
-            .post<any>('http://localhost:3000/streams', {
-                userId,
-                startTime: new Date()
-            })
-            .subscribe({
+        this.streamStartTime = new Date();
+        this.startTimer();
+        this.updateStreamDuration();
+
+        if (isCaller) {
+            const streamData = {
+                startTime: this.streamStartTime,
+                title: 'Live Stream',
+                isActive: true
+            };
+
+            this.streamService.createStream(streamData).subscribe({
                 next: (stream) => {
-                    this.currentStreamId = stream._id;
-                    this.streamStartTime = new Date();
-                    this.startTimer();
-                    this.updateStreamDuration();
-                    this.isStreaming = true;
-                },
-                error: (err) => console.error('Stream maken mislukt', err)
+                    console.log('Stream created:', stream);
+                    this.currentStreamId = stream._id ?? null;
+                    console.log('Current Stream ID:', this.currentStreamId);
+                }
             });
-
-        if (this.remoteVideo?.nativeElement) {
-            this.remoteVideo.nativeElement.srcObject = this.webrtc.remoteStream;
         }
     }
 
     stop() {
         this.webrtc.stopConnection();
-
         if (this.localVideo?.nativeElement) {
             this.localVideo.nativeElement.srcObject = null;
         }
@@ -103,6 +132,12 @@ export class StreamingComponent implements AfterViewInit {
         clearInterval(this.timerInterval);
         this.streamDuration = '00:00:00';
         this.streamStartTime = null;
+        this.streamService.stopStream(this.currentStreamId ?? '').subscribe({
+            next: (stream) => {
+                console.log('Stream stopped:', stream);
+            }
+        });
+        this.currentStreamId = null; //reset de huidige stream ID
 
         if (this.currentStreamId) {
             this.http
@@ -156,7 +191,7 @@ export class StreamingComponent implements AfterViewInit {
     startTimer() {
         this.timerInterval = setInterval(() => {
             this.updateStreamDuration();
-        }, 1000);
+        }, 1000); // elke seconde bijwerken
     }
 
     ngAfterViewInit() {
@@ -175,5 +210,20 @@ export class StreamingComponent implements AfterViewInit {
             console.error('Kon userId niet uit token halen');
             return '';
         }
+    }
+
+    sendMessage() {
+        if (!this.newMessage.trim()) return;
+
+        const msg = {
+            userId: this.userId,
+            userName: this.userName,
+            text: this.newMessage,
+            streamId: this.streamId
+        };
+
+        this.chatService.sendMessage(msg);
+        this.chatMessages.push({ ...msg, timestamp: new Date().toISOString() });
+        this.newMessage = '';
     }
 }

@@ -1,16 +1,35 @@
 // streams/stream.controller.ts
-import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Get,
+    Param,
+    Patch,
+    Post,
+    Req,
+    Request,
+    UseGuards
+} from '@nestjs/common';
 import { StreamService } from './stream.sevice';
 import { CreateStreamDto } from './dto/create-stream.dto';
 import { Stream } from './schemas/stream.schema';
+import { AuthGuard } from '../auth/auth.guards';
 
 @Controller('streams')
 export class StreamController {
     constructor(private readonly streamService: StreamService) {}
 
     @Post()
-    async create(@Body() dto: CreateStreamDto): Promise<Stream> {
-        return this.streamService.create(dto);
+    @UseGuards(AuthGuard)
+    async create(
+        @Body() dto: CreateStreamDto,
+        @Request() req: any
+    ): Promise<Stream> {
+        console.log('request: ' + req.user.sub);
+
+        const userId = req.user.sub;
+        console.log('Creating stream for user:', userId);
+        return this.streamService.create(dto, userId);
     }
 
     @Get()
@@ -28,8 +47,17 @@ export class StreamController {
         return this.streamService.findById(id);
     }
 
-    @Post('stop/:id')
-    async stop(@Param('id') id: string) {
-        return this.streamService.stopStream(id);
+    @Patch(':id/end')
+    async endStream(@Param('id') id: string): Promise<Stream | null> {
+        return this.streamService.endStream(id);
+    }
+    @Patch(':id/join')
+    @UseGuards(AuthGuard)
+    async joinStream(
+        @Param('id') id: string,
+        @Request() req: any
+    ): Promise<Stream | null> {
+        const userId = req.user.sub;
+        return this.streamService.joinStream(id, userId);
     }
 }

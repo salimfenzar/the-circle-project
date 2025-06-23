@@ -1,12 +1,15 @@
 // streams/schemas/stream.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document, Types, Schema as MongooseSchema } from 'mongoose';
 import { User } from '../../user/schemas/user.schema'; // let op het juiste pad
 
 @Schema({ timestamps: true })
 export class Stream extends Document {
     @Prop({ type: Types.ObjectId, ref: User.name, required: true })
     userId: Types.ObjectId;
+
+    @Prop()
+    socketId: string;
 
     @Prop({ required: true })
     startTime: Date;
@@ -19,6 +22,9 @@ export class Stream extends Document {
 
     @Prop()
     endTime?: Date;
+
+    @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'User' }] })
+    followers?: User[];
 }
 
 export const StreamSchema = SchemaFactory.createForClass(Stream);

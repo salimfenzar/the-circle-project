@@ -13,8 +13,13 @@ export class StreamService {
         private readonly rewardService: RewardService
     ) {}
 
-    async create(createStreamDto: CreateStreamDto): Promise<Stream> {
+    async create(
+        createStreamDto: CreateStreamDto,
+        userId: string
+    ): Promise<Stream> {
+        createStreamDto.userId = userId;
         const created = new this.streamModel(createStreamDto);
+        console.log('created:', created);
         return created.save();
     }
 
@@ -30,25 +35,39 @@ export class StreamService {
         return this.streamModel.findById(id).exec();
     }
 
-    async stopStream(streamId: string): Promise<{ reward: number }> {
-        const stream = await this.streamModel.findById(streamId);
-        if (!stream || !stream.isActive) {
-            throw new Error('Stream niet gevonden of al gestopt');
+    async findBySocketId(socketId: string): Promise<Stream | null> {
+        return this.streamModel.findOne({ socketId, isActive: true }).exec();
+    }
+
+    async endStream(id: string): Promise<{ stream: Stream; reward: number }> {
+        const stream = await this.streamModel.findById(id).exec();
+
+        if (!stream) {
+            return null;
         }
 
-        stream.endTime = new Date();
         stream.isActive = false;
+        stream.endTime = new Date();
 
         const duration = this.rewardService.calculateStreamDuration(stream);
         const reward = this.rewardService.calculateReward(duration);
 
-        console.log('Stream userId:', stream.userId);
         await this.rewardService.applyRewardToUser(
             stream.userId.toString(),
             reward
         );
         await stream.save();
 
-        return { reward };
+        return { stream, reward };
+    }
+
+    async joinStream(id: string, userId: string): Promise<Stream | null> {
+        return this.streamModel
+            .findByIdAndUpdate(
+                id,
+                { $addToSet: { followers: userId } },
+                { new: true }
+            )
+            .exec();
     }
 }
