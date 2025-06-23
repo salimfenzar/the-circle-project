@@ -13,7 +13,7 @@ import { ChatService } from '../../services/chat.service';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { StreamService } from './streaming.service';
-import { AuthService } from '../../auth/auth.service'; // ✅ toevoegen
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'avans-nx-workshop-streaming',
@@ -38,7 +38,7 @@ export class StreamingComponent implements OnInit, AfterViewInit {
   private webrtc = inject(WebRTCService);
   private chatService = inject(ChatService);
   private route = inject(ActivatedRoute);
-  private authService = inject(AuthService); // ✅ injectie van authservice
+  private authService = inject(AuthService);
 
   chatMessages: any[] = [];
   newMessage = '';
@@ -126,7 +126,7 @@ export class StreamingComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    const user = this.authService.getUser(); // ✅ haal echte gebruiker op
+    const user = this.authService.getUser();
     if (!user) {
       alert('Je moet ingelogd zijn om te streamen of chatten.');
       return;
@@ -144,7 +144,7 @@ export class StreamingComponent implements OnInit, AfterViewInit {
 
       this.chatService.onMessage((msg) => {
         if (msg.streamId === this.streamId) {
-          this.chatMessages.push(msg);
+          this.chatMessages.push(msg); // bericht komt van server
         }
       });
     });
@@ -164,13 +164,7 @@ export class StreamingComponent implements OnInit, AfterViewInit {
       streamId: this.streamId,
     };
 
-    this.chatService.sendMessage(msg); // ✅ stuur geen userId / userName meer mee
-    this.chatMessages.push({
-      ...msg,
-      userId: this.userId,
-      userName: this.userName,
-      timestamp: new Date().toISOString(),
-    });
-    this.newMessage = '';
+    this.chatService.sendMessage(msg);
+    this.newMessage = ''; // leeg inputveld
   }
 }
