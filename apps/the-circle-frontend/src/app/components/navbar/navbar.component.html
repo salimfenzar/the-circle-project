@@ -16,10 +16,10 @@
   <a [routerLink]="'/dashboard'" routerLinkActive="text-blue-600"
     class="text-gray-700 hover:text-blue-600 font-medium transition">Dashboard</a>
 
-  <a [routerLink]="'/streaming'" routerLinkActive="text-blue-600"
+  <a *ngIf="isLoggedIn" [routerLink]="'/streaming'" routerLinkActive="text-blue-600"
     class="text-gray-700 hover:text-blue-600 font-medium transition">Stream</a>
 
-  <a [routerLink]="'/active-streamers'" routerLinkActive="text-blue-600"
+  <a *ngIf="isLoggedIn" [routerLink]="'/active-streamers'" routerLinkActive="text-blue-600"
     class="text-gray-700 hover:text-blue-600 font-medium transition">🔴 Active Streamers</a>
 
   <a *ngIf="isLoggedIn" [routerLink]="'/profile'" routerLinkActive="text-blue-600"
@@ -58,8 +58,11 @@
   <!-- Mobile menu -->
 <div *ngIf="isMobileMenuOpen" class="md:hidden px-4 pb-4 space-y-2">
   <a [routerLink]="'/dashboard'" class="block text-gray-700 hover:text-blue-600 font-medium transition">Dashboard</a>
-  <a [routerLink]="'/streaming'" class="block text-gray-700 hover:text-blue-600 font-medium transition">Stream</a>
-  <a [routerLink]="'/active-streamers'" class="block text-gray-700 hover:text-blue-600 font-medium transition">🔴 Active Streamers</a>
+  <a *ngIf="isLoggedIn" [routerLink]="['/streaming', currentStreamId]"
+         class="text-gray-700 hover:text-blue-600 font-medium transition">
+        Stream
+      </a>
+  <a *ngIf="isLoggedIn" [routerLink]="'/active-streamers'" class="block text-gray-700 hover:text-blue-600 font-medium transition">🔴 Active Streamers</a>
 
   <a *ngIf="isLoggedIn" [routerLink]="'/profile'" class="block text-gray-700 hover:text-blue-600 font-medium transition">Profile</a>
 

@@ -5,6 +5,8 @@ import { enableProdMode } from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
 
 bootstrapApplication(AppComponent, {
-    ...appConfig,
+
+
+  ...appConfig,
     providers: [...appConfig.providers, provideAnimations()]
 }).catch((err) => console.error(err));

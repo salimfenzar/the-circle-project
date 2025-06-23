@@ -6,47 +6,64 @@ import { ApiResponse } from '@avans-nx-workshop/shared';
 import { environment } from 'apps/the-circle-frontend/src/environments/environment';
 import { AuthService } from '../../auth/auth.service';
 
-
-
 @Injectable({
-  providedIn: 'root',
+    providedIn: 'root'
 })
 export class StreamService {
-  readonly streams: IStream[] = [
-  ];
+    readonly streams: IStream[] = [];
 
-  constructor(private http: HttpClient, private authService: AuthService) {
-    console.log('StreamService created');
-  }
-
-  createStream(item: IStream, options?: any): Observable<IStream> {
-    const token = this.authService.getToken();
-
-    if(!token){
-      throw new Error('No token found');
+    constructor(private http: HttpClient, private authService: AuthService) {
+        console.log('StreamService created');
     }
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    });
-    return this.http.post<IStream>(`${environment.dataApiUrl}/streams`, item, { headers });
 
-  }
+    createStream(item: IStream, options?: any): Observable<IStream> {
+        const token = this.authService.getToken();
 
-  stopStream(streamId: string, options?: any): Observable<IStream> {
-    return this.http.patch<IStream>(`${environment.dataApiUrl}/streams/${streamId}/end`,{})
-  }
-
-  joinStream(streamId: string, options?: any): Observable<IStream> {
-    const token = this.authService.getToken();
-
-    if(!token){
-      throw new Error('No token found');
+        if (!token) {
+            throw new Error('No token found');
+        }
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+        });
+        return this.http.post<IStream>(
+            `${environment.dataApiUrl}/streams`,
+            item,
+            { headers }
+        );
     }
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    });
-    return this.http.patch<IStream>(`${environment.dataApiUrl}/streams/${streamId}/join`, { headers });
-  }
+    stopStream(streamId: string, options?: any): Observable<IStream> {
+        return this.http.patch<IStream>(
+            `${environment.dataApiUrl}/streams/${streamId}/end`,
+            {}
+        );
+    }
+    joinStream(streamId: string, options?: any): Observable<IStream> {
+        const token = this.authService.getToken();
+
+        if (!token) {
+            throw new Error('No token found');
+        }
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+        });
+        return this.http.patch<IStream>(
+            `${environment.dataApiUrl}/streams/${streamId}/join`,
+            { headers }
+        );
+    }
+
+    getRewardSatoshi(): Observable<number> {
+        return this.http
+            .get<{ rewardSatoshi: number }>(
+                'http://localhost:3000/users/current'
+            )
+            .pipe(
+                map((res) => {
+                    console.log('Response from backend:', res);
+                    return res.rewardSatoshi;
+                })
+            );
+    }
 }
