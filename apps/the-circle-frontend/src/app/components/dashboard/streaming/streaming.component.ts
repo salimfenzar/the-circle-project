@@ -14,10 +14,7 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { StreamService } from './streaming.service';
 import { filter, first } from 'rxjs';
-<<<<<<< HEAD
-=======
 import { AuthService } from '../../auth/auth.service';
->>>>>>> 4da00ba32258238f203890fe9fa49221c7619375
 
 @Component({
     selector: 'avans-nx-workshop-streaming',

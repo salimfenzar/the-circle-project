@@ -2,10 +2,7 @@ import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { HttpClient } from '@angular/common/http';
 import { SocketService } from './socket.service';
-<<<<<<< HEAD
-=======
 import { environment } from 'apps/the-circle-frontend/src/environments/environment';
->>>>>>> 4da00ba32258238f203890fe9fa49221c7619375
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
@@ -14,7 +11,8 @@ export class ChatService {
   constructor(private http: HttpClient, private socketService: SocketService) {
   }
 
-  sendMessage(message: { userId: string; userName: string; text: string; streamId: string }) {
+  // ✅ Alleen text & streamId nodig – backend haalt user uit token
+  sendMessage(message: { text: string; streamId: string }) {
     this.socket.emit('chat-message', message);
   }
 

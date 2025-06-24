@@ -27,6 +27,7 @@ export class UserController {
         return this.userService.findAll();
     }
 
+
     @Get('current')
       @UseGuards(AuthGuard)
     async getCurrent(@Req() req) {
