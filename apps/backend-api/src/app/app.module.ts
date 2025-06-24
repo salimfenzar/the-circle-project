@@ -8,9 +8,8 @@ import { RewardModule } from './reward/reward.module';
 const isProduction = process.env.NODE_ENV === 'production';
 
 const MONGO_DB_CONNECTION_STRING = isProduction
-  ? 'mongodb+srv://salimfenzar:Eastpak10@cluster0.whzhx.mongodb.net/recipe?retryWrites=true&w=majority&appName=Cluster0'
+  ? 'mongodb+srv://app-crud:VOCK02gBLd8Xr6GU@avans.wmcoo.mongodb.net/?retryWrites=true&w=majority&appName=avans'
   : 'mongodb://localhost:27017/the-circle';
-
 
 
 @Module({
