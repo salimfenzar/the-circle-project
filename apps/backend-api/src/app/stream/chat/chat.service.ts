@@ -12,7 +12,6 @@ export class ChatService {
 
   async saveMessage(userId: string, userName: string, text: string, streamId: string) {
     console.log('💾 Opslaan bericht ontvangen in ChatService');
-
     const message = new this.chatModel({ userId, userName, text, streamId });
     return message.save();
   }
