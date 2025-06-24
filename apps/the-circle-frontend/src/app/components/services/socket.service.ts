@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { io, Socket } from 'socket.io-client';
 import { environment } from 'apps/the-circle-frontend/src/environments/environment';
+import { io, Socket } from 'socket.io-client';
 
 @Injectable({ providedIn: 'root' })
 export class SocketService {
@@ -14,7 +14,8 @@ export class SocketService {
     this.socket = io(environment.dataApiUrl, {
       auth: {
         token: token || ''
-      }
+      },
+      transports: ['websocket']
     });
   }
 
