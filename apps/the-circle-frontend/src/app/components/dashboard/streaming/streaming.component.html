@@ -8,7 +8,13 @@
             [hidden]="!showLocal"
         ></video>
         <video #remoteVideo autoplay playsinline [hidden]="!showRemote"></video>
-        <div class="video-overlay">Live: {{ streamDuration }}</div>
+        <div class="video-overlay">
+            Live: {{ streamDuration }}
+            
+            <div *ngIf="isPaused">
+                ⏸ Stream Paused
+            </div>
+        </div>
         <div class="info-overlay">
             <div class="info-box">Followers: 2</div>
             <div class="info-box">
