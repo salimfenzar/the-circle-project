@@ -30,7 +30,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('chat-message')
   async handleChatMessage(
-    @MessageBody() data: { text: string; streamId: string },
+    @MessageBody() data: { text: string; streamId: string, signature: string },
     @ConnectedSocket() client: Socket
   ) {
     const user = client['user'];
@@ -50,13 +50,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       userName: user.name,
       text: data.text,
       streamId: data.streamId,
+      signature: data.signature,
     };
 
     await this.chatService.saveMessage(
       message.userId,
       message.userName,
       message.text,
-      message.streamId
+      message.streamId,
+      message.signature
     );
 
     this.server.emit('chat-message', {

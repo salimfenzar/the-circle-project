@@ -15,7 +15,7 @@ export class ChatService {
   }
 
   // ✅ Bericht versturen
-  sendMessage(message: { text: string; streamId: string }) {
+  sendMessage(message: { text: string; streamId: string; signature: string }) {
     this.socket.emit('chat-message', message);
   }
 

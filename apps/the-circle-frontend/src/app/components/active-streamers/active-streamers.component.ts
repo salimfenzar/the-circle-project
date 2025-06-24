@@ -62,24 +62,4 @@ export class ActiveStreamersComponent implements OnInit {
         });
     }
 
-    sendMessageToStream(streamId: string) {
-        const text = this.newMessages[streamId];
-        if (!text?.trim()) return;
-
-        this.chatService.sendMessage({ text, streamId });
-
-        this.chatMessages[streamId] = [
-            ...(this.chatMessages[streamId] || []),
-            {
-                text,
-                streamId,
-                timestamp: new Date().toISOString(),
-                userName: this.authService.getUser()?.name || 'Anon'
-            }
-        ];
-
-        this.newMessages[streamId] = '';
-    }
-  
-      
 }

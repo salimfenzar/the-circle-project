@@ -75,6 +75,7 @@ export class WatchComponent implements OnInit {
     const msg = {
       text: this.newMessage,
       streamId: this.streamId,
+      signature: this.signMessage(this.newMessage, this.streamId),
     };
 
     this.chatService.sendMessage(msg);
@@ -96,5 +97,10 @@ export class WatchComponent implements OnInit {
       console.error('Scrollen naar onderen mislukt:', err);
     }
   }
-  
+ 
+  public signMessage(text: string, streamId: string): string {
+      const key = 'public-secret-key-known-to-all'; // mag niet geheim zijn, wel bekend en constant
+      const message = `${this.userId}:${this.userName}:${streamId}:${text}`;
+      return crypto.createHmac('sha256', key).update(message).digest('hex');
+  }
 }

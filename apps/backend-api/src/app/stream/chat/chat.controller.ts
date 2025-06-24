@@ -11,12 +11,14 @@ export class ChatController {
     userName: string;
     text: string;
     streamId: string;
+    signature: string;
   }) {
     return this.chatService.saveMessage(
       body.userId,
       body.userName,
       body.text,
-      body.streamId
+      body.streamId,
+      body.signature
     );
   }
 

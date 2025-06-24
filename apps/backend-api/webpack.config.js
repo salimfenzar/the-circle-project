@@ -1,8 +1,27 @@
 const { composePlugins, withNx } = require('@nx/webpack');
+const webpack = require('webpack');
+const path = require('path');
 
-// Nx plugins for webpack.
 module.exports = composePlugins(withNx(), (config) => {
-  // Update the webpack config as needed here.
-  // e.g. `config.plugins.push(new MyPlugin())`
+  config.resolve = {
+    ...config.resolve,
+    fallback: {
+      ...config.resolve?.fallback,
+      crypto: require.resolve('crypto-browserify'),
+      stream: require.resolve('stream-browserify'),
+      buffer: require.resolve('buffer'),
+      assert: require.resolve('assert'),
+      process: require.resolve('process/browser'),
+    },
+  };
+
+  config.plugins = [
+    ...(config.plugins || []),
+    new webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
+      process: 'process/browser',
+    }),
+  ];
+
   return config;
 });
