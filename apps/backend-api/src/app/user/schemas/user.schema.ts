@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { UserGender, UserRole } from '../../../../../../libs/shared/src';
+import * as mongoose from 'mongoose';
 
 @Schema({ timestamps: true })
 export class User extends Document {
@@ -27,6 +28,9 @@ export class User extends Document {
 
     @Prop({ default: 0 })
     rewardSatoshi: number;
+
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], default: [] })
+  followedStreamers: mongoose.Types.ObjectId[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

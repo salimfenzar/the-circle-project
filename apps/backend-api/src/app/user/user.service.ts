@@ -1,18 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-
+import * as mongoose from 'mongoose';
 import { User } from './schemas/user.schema';
+import { UserActivityLog } from './schemas/user-activity.log';
 import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UserService {
-    constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+    constructor(
+        @InjectModel(User.name) private userModel: Model<User>,
+        @InjectModel(UserActivityLog.name) private userActivityLogModel: Model<UserActivityLog>
+    ) {}
 
-    async create(user: any): Promise<User> {
-        const created = new this.userModel(user);
-        return created.save();
-    }
+  async create(user: any): Promise<User> {
+    const created = new this.userModel(user);
+    return created.save();
+  }
 
     async findAll(): Promise<User[]> {
         return this.userModel.find().exec();
@@ -33,4 +37,58 @@ export class UserService {
         user.rewardSatoshi += amount;
         return user.save();
     }
+
+  async followStreamer(userId: string, streamerId: string): Promise<User | null> {
+    // Log the current database name for debugging
+    const dbName = this.userModel.db.name;
+    console.log('Current MongoDB database name:', dbName);
+    console.log('followStreamer called with:', { userId, streamerId });
+    const user = await this.userModel.findById(new mongoose.Types.ObjectId(userId)).exec();
+    if (!user) {
+      console.error('followStreamer: user not found:', userId);
+      return null;
+    }
+    // Log the follow action
+    await this.userActivityLogModel.create({
+      userId,
+      action: 'follow',
+      targetUserId: streamerId,
+    });
+    const result = await this.userModel.findByIdAndUpdate(
+      new mongoose.Types.ObjectId(userId),
+      { $addToSet: { followedStreamers: new mongoose.Types.ObjectId(streamerId) } },
+      { new: true }
+    ).exec();
+    console.log('followStreamer result:', result);
+    return result;
+  }
+
+  async unfollowStreamer(userId: string, streamerId: string): Promise<User | null> {
+    console.log('unfollowStreamer called with:', { userId, streamerId });
+    // Log the unfollow action
+    await this.userActivityLogModel.create({
+      userId,
+      action: 'unfollow',
+      targetUserId: streamerId,
+    });
+    const result = await this.userModel.findByIdAndUpdate(
+      new mongoose.Types.ObjectId(userId),
+      { $pull: { followedStreamers: new mongoose.Types.ObjectId(streamerId) } },
+      { new: true }
+    ).exec();
+    console.log('unfollowStreamer result:', result);
+    return result;
+  }
+
+  async getFollowedStreamers(userId: string): Promise<User[] | null> {
+    const userDoc = await this.userModel.findById(userId).exec();
+    if (!userDoc) return null;
+    const followedStreamers = (userDoc as any).followedStreamers;
+    if (!followedStreamers || followedStreamers.length === 0) return [];
+    const ids = followedStreamers.map((id: any) =>
+      typeof id === 'string' ? new mongoose.Types.ObjectId(id) : id
+    );
+    const streamers = await this.userModel.find({ _id: { $in: ids } }).exec();
+    return streamers;
+  }
 }

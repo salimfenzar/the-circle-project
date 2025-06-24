@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { UserGender, UserRole } from '@avans-nx-workshop/shared';
 import { environment } from 'apps/the-circle-frontend/src/environments/environment';
+import { jwtDecode } from 'jwt-decode';
 
 export interface RegisterDto {
     name: string;
@@ -17,6 +18,12 @@ export interface RegisterDto {
 export interface LoginDto {
     email: string;
     password: string;
+}
+
+export interface JwtPayload {
+  sub: string; // user id
+  email: string;
+  // add other fields if needed
 }
 
 @Injectable({
@@ -62,5 +69,16 @@ export class AuthService {
 
   isLoggedIn(): boolean {
     return !!this.getToken();
+  }
+
+  getCurrentUserId(): string | null {
+    const token = localStorage.getItem('access_token');
+    if (!token) return null;
+    try {
+      const decoded = jwtDecode<JwtPayload>(token);
+      return decoded.sub;
+    } catch {
+      return null;
+    }
   }
 }
