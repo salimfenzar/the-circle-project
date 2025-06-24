@@ -49,4 +49,9 @@ export class ChatService {
       callback(data);
     });
   }
+  getAllMessages() {
+    return this.http.get<any[]>('http://localhost:3000/chat/messages');
+  }
+  
+
 }

@@ -80,4 +80,6 @@ export class ActiveStreamersComponent implements OnInit {
 
         this.newMessages[streamId] = '';
     }
+  
+      
 }

@@ -39,27 +39,37 @@
       <div class="chat-messages">
         <div class="message" *ngFor="let message of chatMessages">
           <strong>{{ message.userName }}:</strong> {{ message.text }}<br />
-          <small class="text-xs text-gray-400">
+          <small class="timestamp">
             {{ message.timestamp | date: 'shortTime' }}
           </small>
         </div>
+        <div #chatBottom></div>
       </div>
+      
+      
   
-      <form (submit)="sendMessage(); $event.preventDefault()">
+      <form *ngIf="streamId" (submit)="sendMessage(); $event.preventDefault()">
         <input
           type="text"
           [(ngModel)]="newMessage"
           name="message"
           placeholder="Type a message..."
+          [disabled]="!streamId"
         />
         <button
           class="sendmsg-btn"
           type="submit"
-          [disabled]="!newMessage.trim()"
+          [disabled]="!newMessage.trim() || !streamId"
         >
           Send
         </button>
       </form>
+      
+      <!-- Optioneel: laat iets zien als streamId nog niet beschikbaar is -->
+      <div *ngIf="!streamId" class="chat-disabled-msg">
+        ⛔ Start eerst een stream om te kunnen chatten
+      </div>
+      
     </div>
   </div>
   

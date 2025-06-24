@@ -27,4 +27,10 @@ export class ChatController {
   ) {
     return this.chatService.getMessagesByStream(streamId, +limit);
   }
+  @Get('messages')
+  getAllMessages() {
+    return this.chatService.getAllMessages();
+  }
+  
+
 }

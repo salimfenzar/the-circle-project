@@ -22,14 +22,19 @@ import { AuthService } from '../../auth/auth.service';
     imports: [CommonModule, FormsModule],
     providers: [WebRTCService],
     templateUrl: './streaming.component.html',
-    styleUrls: ['./streaming.component.css']
+    styleUrls: ['./streaming.component.css'],
+    
 })
 export class StreamingComponent implements OnInit, AfterViewInit {
     @ViewChild('localVideo') localVideo!: ElementRef<HTMLVideoElement>;
     @ViewChild('remoteVideo') remoteVideo!: ElementRef<HTMLVideoElement>;
+    @ViewChild('chatBottom') chatBottom!: ElementRef<HTMLDivElement>;
+
     constructor(
         private http: HttpClient,
         private streamService: StreamService
+       
+
     ) {}
 
     rewardedSatoshi = 0;
@@ -54,9 +59,15 @@ export class StreamingComponent implements OnInit, AfterViewInit {
     userId = ''; // ← vervangen door echte user-id later
     userName = ''; // ← idem
     streamId = ''; // ← dynamisch uit URL
-
+  
     ngOnInit(): void {
         const user = this.authService.getUser();
+        setInterval(() => {
+            this.chatService.getAllMessages().subscribe((msgs) => {
+              this.chatMessages = msgs.reverse();
+            });
+          }, 15000);
+        
         if (!user) {
             alert('Je moet ingelogd zijn om te streamen of chatten.');
             return;
@@ -66,10 +77,12 @@ export class StreamingComponent implements OnInit, AfterViewInit {
         this.route.params.subscribe((params) => {
             this.streamId = params['id'];
             console.log('Stream ID uit route:', this.streamId);
+            
 
             // Chatgeschiedenis ophalen
             this.chatService.getMessages(this.streamId).subscribe((msgs) => {
-                this.chatMessages = msgs.reverse();
+                this.chatMessages = msgs;
+                this.scrollToBottom();
             });
 
             
@@ -85,6 +98,7 @@ export class StreamingComponent implements OnInit, AfterViewInit {
                   console.warn('[🚫 streaming.component] Bericht hoort NIET bij deze stream');
                 }
               });
+              
               
         });
 
@@ -144,8 +158,9 @@ export class StreamingComponent implements OnInit, AfterViewInit {
                     this.chatService.emitStartStream(this.streamId); // 🔁 stream-info triggeren voor watchers
 
                     console.log('Current Stream ID:', this.currentStreamId);
-          
-                    this.chatService.emitStartStream(stream._id!);
+                    this.loadAllMessages();
+
+                    
 
                     // ✅ Verplaats onMessage HIER
                     this.chatService.onMessage((msg) => {
@@ -284,7 +299,33 @@ export class StreamingComponent implements OnInit, AfterViewInit {
             ...msg,
             timestamp: new Date().toISOString(),
             userName: this.userName // optioneel: alleen frontend-display
+            
         });
         this.newMessage = '';
+        this.scrollToBottom();
     }
+    loadAllMessages() {
+        if (!this.streamId) {
+          console.warn('⚠️ Kan geen berichten laden zonder streamId');
+          return;
+        }
+      
+        this.chatService.getAllMessages().subscribe((msgs) => {
+        
+            this.chatMessages = msgs; // ⛔ alleen voor debug!
+
+        });
+        this.scrollToBottom();
+      }
+      
+      scrollToBottom(): void {
+        try {
+          this.chatBottom.nativeElement.scrollIntoView({ behavior: 'smooth' });
+        } catch (err) {
+          console.error('Scrollen naar onderen mislukt:', err);
+        }
+      }
+      
+ 
+      
 }

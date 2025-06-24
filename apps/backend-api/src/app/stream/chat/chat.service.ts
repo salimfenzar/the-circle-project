@@ -16,6 +16,12 @@ export class ChatService {
     return message.save();
   }
 
+  async getAllMessages() {
+    return this.chatModel.find().sort({ createdAt: 1 }); // oudste eerst
+  }
+  
+
+  
   async getMessagesByStream(streamId: string, limit = 50) {
     return this.chatModel
       .find({ streamId })

@@ -32,6 +32,7 @@
           message.timestamp | date : 'shortTime'
         }}</small>
       </div>
+      <div #chatBottom></div>
     </div>
 
     <form (submit)="sendMessage(); $event.preventDefault()">
