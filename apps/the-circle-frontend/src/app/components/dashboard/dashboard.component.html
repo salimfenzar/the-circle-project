@@ -1,28 +1,38 @@
 <div class="hero-section text-white d-flex align-items-center mb-5">
-  <div class="container">
-    <div class="row">
-      <div class="col-5" style="color:black">
-        <h1 class="text-center"style="font-size: 30px">Welcome to 360Streaming</h1>
-        <p class="text-center">Your personal dashboard for managing your streaming activities</p>
+    <div class="container">
+        <div class="row">
+            <div class="col-5" style="color: black">
+                <h1 class="text-center" style="font-size: 30px">
+                    Welcome to 360Streaming
+                </h1>
+                <p class="text-center">
+                    Your personal dashboard for managing your streaming
+                    activities
+                </p>
 
-        <br> 
+                <br />
 
-        <a class="text-center btn btn-primary btn-lg btn-block" href="/register">
-          Start your streaming journey
-        </a>
-      </div>
+                <a
+                    class="text-center btn btn-primary btn-lg btn-block"
+                    href="/register"
+                >
+                    Start your streaming journey
+                </a>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
-<h1 class="text-center"style="font-size: 30px">Share your world with others</h1>
+<h1 class="text-center" style="font-size: 30px">
+    Share your world with others
+</h1>
 
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-sm-4 col-md-4 col-lg-4 my-5">
             <div class="card card-auth shadow-lg p-3 px-md-5 py-md-4">
                 <h2 style="font-size: 20px">Profile</h2>
-                <p>Set up an unique profile!</p>
+                <p>Set up a unique profile!</p>
             </div>
         </div>
         <div class="col-sm-4 col-md-4 col-lg-4 my-5">
@@ -40,36 +50,54 @@
     </div>
 
     <div class="center-element mb-3">
-        <a class="text-center btn btn-primary btn-lg btn-block" href="/register">
+        <a
+            class="text-center btn btn-primary btn-lg btn-block"
+            href="/register"
+        >
             Explore 360Streaming
         </a>
     </div>
 </div>
 
 <div class="container my-5">
-  <h2 class="text-xl font-bold mb-3">Gevolgde Streamers</h2>
+    <h2 class="text-xl font-bold mb-3">Gevolgde Streamers</h2>
 
-  <!-- Debug output for troubleshooting -->
-  <p>Debug: Aantal gevolgde streamers: {{ followedStreamers.length }}</p>
-  <p *ngIf="followedStreamers.length">Eerste streamer naam: {{ followedStreamers[0]?.name }}</p>
+    <!-- Debug output for troubleshooting -->
+    <!-- <p>Debug: Aantal gevolgde streamers: {{ followedStreamers.length }}</p> -->
 
-  <ul *ngIf="followedStreamers.length; else geenGevolgde" class="space-y-2">
-    <li *ngFor="let streamer of followedStreamers" class="p-4 border rounded shadow flex items-center space-x-4">
-      <!-- Avatar -->
-      <div class="w-12 h-12 rounded-full overflow-hidden bg-gray-200">
-        <img [src]="streamer.avatarUrl || 'assets/avatar.avif'" alt="avatar" class="w-full h-full object-cover" />
-      </div>
-      <!-- Streamer info -->
-      <div>
-        <div class="font-semibold">{{ streamer.name }}</div>
-        <div class="text-sm text-gray-600">{{ streamer.slogan || 'Geen slogan' }}</div>
-      </div>
-      <button class="ml-auto px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700" (click)="unfollowStreamer(streamer._id)">
-        Ontvolgen
-      </button>
-    </li>
-  </ul>
-  <ng-template #geenGevolgde>
-    <p class="text-muted">Je volgt nog geen streamers.</p>
-  </ng-template>
+    <ul *ngIf="followedStreamers.length; else geenGevolgde" class="space-y-2">
+        <li
+            *ngFor="let streamer of followedStreamers"
+            class="p-4 border rounded shadow flex items-center space-x-4"
+        >
+            <!-- Avatar -->
+            <div class="w-12 h-12 rounded-full overflow-hidden bg-gray-200">
+                <img
+                    [src]="streamer.avatarUrl || 'assets/avatar.avif'"
+                    alt="avatar"
+                    class="w-full h-full object-cover"
+                />
+            </div>
+
+            <!-- Streamer info -->
+            <div>
+                <div class="font-semibold">{{ streamer.name }}</div>
+                <div class="text-sm text-gray-600">
+                    {{ streamer.slogan || 'Geen slogan' }}
+                </div>
+            </div>
+
+            <!-- Unfollow button -->
+            <button
+                class="ml-auto px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                (click)="unfollowStreamer(streamer._id)"
+            >
+                Ontvolgen
+            </button>
+        </li>
+    </ul>
+
+    <ng-template #geenGevolgde>
+        <p>Je volgt momenteel geen streamers.</p>
+    </ng-template>
 </div>
