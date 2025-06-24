@@ -1,48 +1,48 @@
 <div *ngIf="activeStreams.length === 0" class="text-center text-gray-600 mt-8 fs-2">
   Er zijn momenteel geen actieve streamers.
 </div>
-<li
+<ul *ngIf="activeStreams.length > 0" class="space-y-2">
+  <li
     *ngFor="let stream of activeStreams"
     class="p-4 border rounded shadow flex items-center justify-between space-x-4"
->
+  >
     <!-- Avatar + Stream Info -->
     <div class="flex items-center space-x-4">
-        <div class="w-12 h-12 rounded-full overflow-hidden bg-gray-200">
-            <img
-                [src]="stream.user?.avatarUrl || 'assets/avatar.avif'"
-                alt="avatar"
-                class="w-full h-full object-cover"
-            />
+      <div class="w-12 h-12 rounded-full overflow-hidden bg-gray-200">
+        <img
+          [src]="stream.user?.avatarUrl || 'assets/avatar.avif'"
+          alt="avatar"
+          class="w-full h-full object-cover"
+        />
+      </div>
+      <div>
+        <div class="font-semibold">
+          {{ stream.title || 'Untitled Stream' }}
         </div>
-        <div>
-            <div class="font-semibold">
-                {{ stream.title || 'Untitled Stream' }}
-            </div>
-            <div class="text-sm text-gray-600">
-                Starttijd: {{ stream.startTime | date : 'short' }}
-            </div>
+        <div class="text-sm text-gray-600">
+          Starttijd: {{ stream.startTime | date : 'short' }}
         </div>
-
-        <button
-            class="ml-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            (click)="followStreamer(stream.userId)"
-        >
-            Volgen
-        </button>
-        <button
-            class="ml-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-            (click)="unfollowStreamer(stream.userId)"
-        >
-            Ontvolgen
-        </button>
-    </li>
-</ul>
-
-    <!-- Join Button -->
-    <button
-        class="btn btn-primary"
+      </div>
+    </div>
+    <div class="flex items-center">
+      <button
+        class="ml-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        (click)="followStreamer(stream.userId)"
+      >
+        Volgen
+      </button>
+      <button
+        class="ml-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+        (click)="unfollowStreamer(stream.userId)"
+      >
+        Ontvolgen
+      </button>
+      <button
+        class="btn btn-primary ms-2"
         (click)="joinStream(stream._id)"
-    >
+      >
         Join
-    </button>
-</li>
+      </button>
+    </div>
+  </li>
+</ul>

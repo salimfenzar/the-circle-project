@@ -20,4 +20,6 @@ export interface IUser {
   createdAt: string;
   gender?: UserGender;
   role: UserRole;
+  followedStreamers?: any[];
+  rewardSatoshi?: number;
 }

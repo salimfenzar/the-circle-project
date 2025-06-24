@@ -6,8 +6,8 @@ import { StreamModule } from './stream/stream.module';
 import { SignalingGateway } from './stream/signaling.gateway';
 import { RewardModule } from './reward/reward.module';
 
-//const MONGO_DB_CONNECTION_STRING = process.env.MONGO_URL;
-const MONGO_DB_CONNECTION_STRING = 'mongodb://localhost:27017/the-circle'; //localhost
+const MONGO_DB_CONNECTION_STRING = process.env.MONGO_URL;
+//const MONGO_DB_CONNECTION_STRING = 'mongodb://localhost:27017/the-circle'; //localhost
 
 
 
