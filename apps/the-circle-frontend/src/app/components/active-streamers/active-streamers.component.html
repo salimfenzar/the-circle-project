@@ -16,10 +16,10 @@
         </div>
         <div>
             <div class="font-semibold">
-                {{ stream.title || 'Untitled Stream' }}
+                {{ stream.title || 'Untitled Stream' }} of {{ stream.userId?.name || 'Unknown User' }}
             </div>
             <div class="text-sm text-gray-600">
-                Starttijd: {{ stream.startTime | date : 'short' }}
+                Starttime: {{ stream.startTime | date : 'short' }}
             </div>
         </div>
     </div>

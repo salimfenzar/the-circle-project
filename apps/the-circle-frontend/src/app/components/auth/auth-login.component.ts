@@ -29,7 +29,7 @@ export class AuthLoginComponent {
       next: (res) => {
         alert('Inloggen gelukt!');
         localStorage.setItem('access_token', res.token);
-        console.log('Token opgeslagen:', res.token);
+        console.log('Token opgeslagen:');
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
