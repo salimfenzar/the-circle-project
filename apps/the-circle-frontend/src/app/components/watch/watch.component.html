@@ -1,2 +1,53 @@
-<h2 class="text-xl font-bold mb-4">You are watching a stream</h2>
-<video #remoteVideo autoplay playsinline controls class="w-full h-auto border rounded shadow"></video>
+<h2 class="text-xl font-bold mb-4 text-white">You are watching a stream</h2>
+
+<div class="streaming-container">
+  <div class="video-section">
+    <video
+      #remoteVideo
+      autoplay
+      playsinline
+      controls
+      [hidden]="!showRemote"
+    ></video>
+
+    <div class="video-overlay">Live</div>
+    <div class="info-overlay">
+   
+      <div class="info-box">
+        Total earned Satoshi: {{ rewardSatoshi }} ⚡
+        <span *ngIf="comboMultiplier > 1" class="combo-badge">
+          🔥 x{{ comboMultiplier }} Combo!
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-section">
+    <div class="chat-header">Live Chat</div>
+
+    <div class="chat-messages">
+      <div class="message" *ngFor="let message of chatMessages">
+        <strong>{{ message.userName }}:</strong> {{ message.text }}<br />
+        <small class="text-xs text-gray-400">{{
+          message.timestamp | date : 'shortTime'
+        }}</small>
+      </div>
+    </div>
+
+    <form (submit)="sendMessage(); $event.preventDefault()">
+      <input
+        type="text"
+        [(ngModel)]="newMessage"
+        name="message"
+        placeholder="Type a message..."
+      />
+      <button
+        class="sendmsg-btn"
+        type="submit"
+        [disabled]="!newMessage.trim()"
+      >
+        Send
+      </button>
+    </form>
+  </div>
+</div>

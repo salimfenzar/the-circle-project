@@ -41,6 +41,7 @@ export class StreamingComponent implements OnInit, AfterViewInit {
     currentStreamId: string | null = null;
     rewardSatoshi = 0;
     comboMultiplier = 1;
+    isPaused = false;
 
     private timerInterval: any;
     private webrtc = inject(WebRTCService);
@@ -182,6 +183,22 @@ export class StreamingComponent implements OnInit, AfterViewInit {
             this.isStreaming = false;
         }
     }
+
+    togglePause() {
+        if (!this.webrtc.localStream) return;
+
+        const videoTracks = this.webrtc.localStream.getVideoTracks();
+        if (videoTracks.length === 0) return;
+
+        this.isPaused = !this.isPaused;
+
+        videoTracks.forEach((track) => {
+            track.enabled = !this.isPaused;
+        });
+
+        console.log(this.isPaused ? 'Stream paused' : 'Stream resumed');
+    }
+
 
     updateStreamDuration() {
         if (this.streamStartTime) {
