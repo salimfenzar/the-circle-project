@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
+import { environment } from 'apps/the-circle-frontend/src/environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class SocketService {
@@ -10,7 +11,7 @@ export class SocketService {
 
     console.log('📡 Connecting to socket server with token...');
 
-    this.socket = io(`http://${window.location.hostname}:3000`, {
+    this.socket = io(environment.dataApiUrl, {
       auth: {
         token: token || ''
       }

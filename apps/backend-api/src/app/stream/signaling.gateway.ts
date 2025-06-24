@@ -13,7 +13,7 @@ import { StreamService } from './stream.sevice';
 import { Inject } from '@nestjs/common';
 
 @WebSocketGateway({
-  cors: { origin: '*' },
+  cors: true,
 })
 export class SignalingGateway
     implements OnGatewayConnection, OnGatewayDisconnect

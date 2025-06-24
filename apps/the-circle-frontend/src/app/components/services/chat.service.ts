@@ -20,7 +20,8 @@ export class ChatService {
     this.socket.on('chat-message', callback);
   }
 
-  getMessages(streamId: string) {
-    return this.http.get<any[]>(`http://${window.location.hostname}:3000/chat/${streamId}/messages`);
-  }
+getMessages(streamId: string) {
+  return this.http.get<any[]>(`${environment.dataApiUrl}/chat/${streamId}/messages`);
+}
+
 }

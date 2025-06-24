@@ -7,7 +7,7 @@ async function bootstrap() {
 
   // ✅ Zorg dat frontend toegang heeft (handig voor Angular dev server)
   app.enableCors({
-    origin: '*', // voor dev, later strakker maken
+    origin: '*', 
   });
 
 
