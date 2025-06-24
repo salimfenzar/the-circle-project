@@ -72,11 +72,20 @@ export class StreamingComponent implements OnInit, AfterViewInit {
                 this.chatMessages = msgs.reverse();
             });
 
+            
             this.chatService.onMessage((msg) => {
+                console.log('[📥 streaming.component] Ontvangen bericht:', msg);
+                console.log('[ℹ️ streaming.component] Huidige streamId:', this.streamId);
+              
                 if (msg.streamId === this.streamId) {
-                    this.chatMessages.push(msg);
+                  console.log('[✅ streaming.component] Bericht hoort bij deze stream');
+                  this.chatMessages.push(msg);
+                  this.chatMessages = [...this.chatMessages]; 
+                } else {
+                  console.warn('[🚫 streaming.component] Bericht hoort NIET bij deze stream');
                 }
-            });
+              });
+              
         });
 
         // Beloning ophalen bij opstart
@@ -114,33 +123,48 @@ export class StreamingComponent implements OnInit, AfterViewInit {
         this.updateStreamDuration();
 
         if (isCaller) {
-            // Wait for socketId to be available
             this.webrtc.socketId$
-                .pipe(
-                    filter((id): id is string => !!id),
-                    first()
-                )
-                .subscribe((socketId) => {
-                    const streamData = {
-                        startTime: this.streamStartTime!,
-                        title: 'Live Stream',
-                        socketId,
-                        isActive: true
-                    };
+              .pipe(
+                filter((id): id is string => !!id),
+                first()
+              )
+              .subscribe((socketId) => {
+                const streamData = {
+                  startTime: this.streamStartTime!,
+                  title: 'Live Stream',
+                  socketId,
+                  isActive: true
+                };
+          
+                this.streamService.createStream(streamData).subscribe({
+                  next: (stream) => {
+                    console.log('Stream created:', stream);
+                    this.currentStreamId = stream._id ?? null;
+                    this.streamId = stream._id ?? '';
+                    this.chatService.emitStartStream(this.streamId); // 🔁 stream-info triggeren voor watchers
 
-                    this.streamService.createStream(streamData).subscribe({
-                        next: (stream) => {
-                            console.log('Stream created:', stream);
-                            this.currentStreamId = stream._id ?? null;
-                            console.log(
-                                'Current Stream ID:',
-                                this.currentStreamId
-                            );
-                            this.streamId = stream._id ?? '';
-                        }
+                    console.log('Current Stream ID:', this.currentStreamId);
+          
+                    this.chatService.emitStartStream(stream._id!);
+
+                    // ✅ Verplaats onMessage HIER
+                    this.chatService.onMessage((msg) => {
+                      console.log('[📥 streaming.component] Ontvangen bericht:', msg);
+                      console.log('[ℹ️ streaming.component] Huidige streamId:', this.streamId);
+          
+                      if (msg.streamId === this.streamId) {
+                        console.log('[✅ streaming.component] Bericht hoort bij deze stream');
+                        this.chatMessages.push(msg);
+                        this.chatMessages = [...this.chatMessages];
+                      } else {
+                        console.warn('[🚫 streaming.component] Bericht hoort NIET bij deze stream');
+                      }
                     });
+                  }
                 });
-        }
+              });
+          }
+          
     }
 
     stop() {
@@ -236,7 +260,14 @@ export class StreamingComponent implements OnInit, AfterViewInit {
         }
     }
 
+
+
     sendMessage() {
+        if (!this.streamId) {
+            console.warn('⚠️ Geen streamId beschikbaar – kan geen bericht verzenden.');
+            return;
+          }
+
         console.log('🟡 sendMessage wordt aangeroepen');
         console.log('✉️ Bericht:', this.newMessage);
         console.log('📺 streamId in sendMessage:', this.streamId);

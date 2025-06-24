@@ -9,18 +9,44 @@ export class ChatService {
   private socket: Socket = this.socketService.getSocket();
 
   constructor(private http: HttpClient, private socketService: SocketService) {
+    this.socket.on('connect', () => {
+      console.log('✅ Socket.IO verbonden met ID:', this.socket.id);
+    });
   }
 
-  // ✅ Alleen text & streamId nodig – backend haalt user uit token
+  // ✅ Bericht versturen
   sendMessage(message: { text: string; streamId: string }) {
     this.socket.emit('chat-message', message);
   }
 
-  onMessage(callback: (msg: any) => void) {
-    this.socket.on('chat-message', callback);
+  // ✅ Berichten ontvangen
+  onMessage(callback: (message: any) => void) {
+    this.socket.on('chat-message', (msg) => {
+      console.log('📨 Bericht ontvangen in ChatService:', msg);
+      callback(msg);
+    });
   }
 
+  // ✅ Vorige berichten ophalen via HTTP
   getMessages(streamId: string) {
     return this.http.get<any[]>(`http://${window.location.hostname}:3000/chat/${streamId}/messages`);
+  }
+
+  // ✅ Startstream event emitten
+  emitStartStream(streamId: string) {
+    if (streamId) {
+      console.log('🚀 Emit "start-stream" met streamId:', streamId);
+      this.socket.emit('start-stream', { streamId });
+    } else {
+      console.warn('⚠️ Geen streamId beschikbaar voor emitStartStream');
+    }
+  }
+
+  // ✅ Luisteren naar 'stream-info' van server
+  onStreamInfo(callback: (data: { streamId: string }) => void) {
+    this.socket.on('stream-info', (data) => {
+      console.log('ℹ️ stream-info ontvangen:', data);
+      callback(data);
+    });
   }
 }

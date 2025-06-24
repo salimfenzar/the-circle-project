@@ -8,7 +8,7 @@ export class ChatService {
   constructor(
     @InjectModel(ChatMessage.name)
     private chatModel: Model<ChatMessage>
-  ) { }
+  ) {}
 
   async saveMessage(userId: string, userName: string, text: string, streamId: string) {
     console.log('💾 Opslaan bericht ontvangen in ChatService');

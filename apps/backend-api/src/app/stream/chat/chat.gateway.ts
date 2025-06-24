@@ -39,6 +39,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return;
     }
 
+    // ✅ Voeg validatie toe
+  if (!data.streamId || typeof data.streamId !== 'string') {
+    console.error('⛔ Ongeldige of ontbrekende streamId:', data.streamId);
+    return;
+  }
+
     const message = {
       userId: user.sub,
       userName: user.name,
@@ -58,4 +64,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       timestamp: new Date().toISOString(),
     });
   }
+
+  @SubscribeMessage('start-stream')
+handleStartStream(
+  @MessageBody() data: { streamId: string },
+  @ConnectedSocket() client: Socket
+) {
+  console.log(`📡 Stream gestart door ${client.id}, streamId: ${data.streamId}`);
+
+  // Stuur het streamId alleen terug naar deze client (optioneel: gebruik een room)
+  this.server.to(client.id).emit('stream-info', {
+    streamId: data.streamId,
+  });
+}
+
 }

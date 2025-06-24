@@ -1,58 +1,65 @@
 <div class="streaming-container">
     <div class="video-section">
-        <video
-            #localVideo
-            autoplay
-            muted
-            playsinline
-            [hidden]="!showLocal"
-        ></video>
-        <video #remoteVideo autoplay playsinline [hidden]="!showRemote"></video>
-        <div class="video-overlay">Live: {{ streamDuration }}</div>
-        <div class="info-overlay">
-            <div class="info-box">Followers: 2</div>
-            <div class="info-box">
-                Total earned Satoshi: {{ rewardSatoshi }} ⚡
-                <span *ngIf="comboMultiplier > 1" class="combo-badge"
-                    >🔥 x{{ comboMultiplier }} Combo!</span
-                >
-            </div>
+      <video
+        #localVideo
+        autoplay
+        muted
+        playsinline
+        [hidden]="!showLocal"
+      ></video>
+      <video
+        #remoteVideo
+        autoplay
+        playsinline
+        [hidden]="!showRemote"
+      ></video>
+  
+      <div class="video-overlay">Live: {{ streamDuration }}</div>
+  
+      <div class="info-overlay">
+        <div class="info-box">Followers: 2</div>
+        <div class="info-box">
+          Total earned Satoshi: {{ rewardSatoshi }} ⚡
+          <span *ngIf="comboMultiplier > 1" class="combo-badge">
+            🔥 x{{ comboMultiplier }} Combo!
+          </span>
         </div>
-
-        <div class="startstopbtn">
-            <button (click)="start(true)">
-                {{ isStreaming ? 'Stop Stream' : 'Start Stream' }}
-            </button>
-        </div>
+      </div>
+  
+      <div class="startstopbtn">
+        <button (click)="start(true)">
+          {{ isStreaming ? 'Stop Stream' : 'Start Stream' }}
+        </button>
+      </div>
     </div>
-
+  
     <div class="chat-section">
-        <div class="chat-header">Live Chat</div>
-
-        <div class="chat-messages">
-            <div class="message" *ngFor="let message of chatMessages">
-                <strong>{{ message.userName }}:</strong> {{ message.text
-                }}<br />
-                <small class="text-xs text-gray-400">{{
-                    message.timestamp | date : 'shortTime'
-                }}</small>
-            </div>
-
-            <form (submit)="sendMessage(); $event.preventDefault()">
-                <input
-                    type="text"
-                    [(ngModel)]="newMessage"
-                    name="message"
-                    placeholder="Type a message..."
-                />
-                <button
-                    class="sendmsg-btn"
-                    type="submit"
-                    [disabled]="!newMessage.trim()"
-                >
-                    Send
-                </button>
-            </form>
+      <div class="chat-header">Live Chat</div>
+  
+      <div class="chat-messages">
+        <div class="message" *ngFor="let message of chatMessages">
+          <strong>{{ message.userName }}:</strong> {{ message.text }}<br />
+          <small class="text-xs text-gray-400">
+            {{ message.timestamp | date: 'shortTime' }}
+          </small>
         </div>
+      </div>
+  
+      <form (submit)="sendMessage(); $event.preventDefault()">
+        <input
+          type="text"
+          [(ngModel)]="newMessage"
+          name="message"
+          placeholder="Type a message..."
+        />
+        <button
+          class="sendmsg-btn"
+          type="submit"
+          [disabled]="!newMessage.trim()"
+        >
+          Send
+        </button>
+      </form>
     </div>
-</div>
+  </div>
+  
