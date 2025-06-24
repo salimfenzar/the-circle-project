@@ -1,4 +1,3 @@
-// socket.service.ts
 import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 
@@ -7,8 +6,15 @@ export class SocketService {
   private socket: Socket;
 
   constructor() {
-    console.log('📡 Connecting to socket server...');
-    this.socket = io(`http://${window.location.hostname}:3000`);
+    const token = localStorage.getItem('access_token'); // 🔑 haal token op
+
+    console.log('📡 Connecting to socket server with token...');
+
+    this.socket = io(`http://${window.location.hostname}:3000`, {
+      auth: {
+        token: token || ''
+      }
+    });
   }
 
   getSocket(): Socket {
