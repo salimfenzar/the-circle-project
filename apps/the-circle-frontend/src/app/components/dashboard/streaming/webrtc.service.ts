@@ -9,6 +9,7 @@ export class WebRTCService {
   private socket = this.socketService.getSocket(); // your backend signaling server port
 
   public socketId$ = new BehaviorSubject<string | null>(null);
+  public viewerCount$ = new BehaviorSubject<number>(0);
 
 
     private peerConnection!: RTCPeerConnection;
@@ -67,6 +68,10 @@ export class WebRTCService {
                 );
             }
         });
+        this.socket.on('viewer-count', (count: number) => {
+            this.viewerCount$.next(count);
+        });
+
     }
 
     setTargetId(id: string) {

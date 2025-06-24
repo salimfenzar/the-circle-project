@@ -13,7 +13,7 @@ import { StreamService } from './stream.sevice';
 import { Inject } from '@nestjs/common';
 
 @WebSocketGateway({
-  cors: { origin: '*' },
+    cors: { origin: '*' }
 })
 export class SignalingGateway
     implements OnGatewayConnection, OnGatewayDisconnect
@@ -24,6 +24,7 @@ export class SignalingGateway
     constructor(
         @Inject(StreamService) private readonly streamService: StreamService
     ) {}
+    private watchersMap: Map<string, Set<string>> = new Map();
 
     async handleConnection(client: Socket) {
         console.log(`Client connected: ${client.id}`);
@@ -31,6 +32,20 @@ export class SignalingGateway
 
     async handleDisconnect(client: Socket) {
         console.log(`Client disconnected: ${client.id}`);
+        //remove watcher when he disconnects
+        for (const [broadcasterId, watchers] of this.watchersMap.entries()) {
+            if (watchers.has(client.id)) {
+                watchers.delete(client.id);
+                const count = watchers.size;
+                this.server.to(broadcasterId).emit('viewer-count', count);
+                console.log(
+                    `Watcher ${client.id} removed from ${broadcasterId} (viewers: ${count})`
+                );
+                if (count === 0) {
+                    this.watchersMap.delete(broadcasterId);
+                }
+            }
+        }
 
         const stream = await this.streamService.findBySocketId(client.id);
         if (stream) {
@@ -43,6 +58,8 @@ export class SignalingGateway
                 'Broadcaster disconnected and marked inactive in DB:',
                 client.id
             );
+            this.watchersMap.delete(client.id); //if the broadcaster disconnects, remove their watchers
+            console.log(`Removed watchers for broadcaster ${client.id}`);
         }
     }
 
@@ -55,14 +72,19 @@ export class SignalingGateway
         );
     }
 
-  @SubscribeMessage('start-broadcast')
-  async handleStartBroadcast(@MessageBody() data: { name: string }, @ConnectedSocket() client: Socket) {
-    
-    // Emit the clientid back to the creator
-    client.emit('broadcast-started', { streamId: client.id });
-    
-    this.server.emit('broadcaster-list', await this.streamService.findActive());
-  }
+    @SubscribeMessage('start-broadcast')
+    async handleStartBroadcast(
+        @MessageBody() data: { name: string },
+        @ConnectedSocket() client: Socket
+    ) {
+        // Emit the clientid back to the creator
+        client.emit('broadcast-started', { streamId: client.id });
+
+        this.server.emit(
+            'broadcaster-list',
+            await this.streamService.findActive()
+        );
+    }
 
     @SubscribeMessage('join-broadcast')
     async handleJoinBroadcast(
@@ -73,10 +95,14 @@ export class SignalingGateway
             data.targetId
         );
         if (broadcaster) {
+            if (!this.watchersMap.has(data.targetId)) {
+                this.watchersMap.set(data.targetId, new Set());
+            }
+            this.watchersMap.get(data.targetId)?.add(client.id);
             this.server.to(data.targetId).emit('watcher', client.id);
-            console.log(
-                `Watcher ${client.id} joined broadcaster ${data.targetId}`
-            );
+            const count = this.watchersMap.get(data.targetId)?.size || 0;
+            this.server.to(data.targetId).emit('viewer-count', count);
+            console.log(`Watcher ${client.id} joined broadcaster ${data.targetId} - Total viewers: ${count}`);
         }
     }
 

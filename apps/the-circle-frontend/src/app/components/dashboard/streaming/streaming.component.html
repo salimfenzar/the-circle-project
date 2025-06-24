@@ -10,7 +10,7 @@
         <video #remoteVideo autoplay playsinline [hidden]="!showRemote"></video>
         <div class="video-overlay">Live: {{ streamDuration }}</div>
         <div class="info-overlay">
-            <div class="info-box">Followers: 2</div>
+            <div class="info-box">Followers: {{viewerCount$ | async }}</div>
             <div class="info-box">
                 Total earned Satoshi: {{ rewardSatoshi }} ⚡
                 <span *ngIf="comboMultiplier > 1" class="combo-badge"
