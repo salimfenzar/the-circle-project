@@ -56,6 +56,8 @@ export class StreamingComponent implements OnInit, AfterViewInit {
     userName = ''; // ← idem
     streamId = ''; // ← dynamisch uit URL
 
+    viewerCount$ = this.webrtc.viewerCount$;
+
     ngOnInit(): void {
           const user = this.authService.getUser();
     if (!user) {

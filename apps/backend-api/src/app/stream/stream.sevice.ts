@@ -28,7 +28,7 @@ export class StreamService {
     }
 
     async findActive(): Promise<Stream[]> {
-        return this.streamModel.find({ isActive: true }).exec();
+        return this.streamModel.find({ isActive: true }).populate('userId').exec();
     }
 
     async findById(id: string): Promise<Stream | null> {

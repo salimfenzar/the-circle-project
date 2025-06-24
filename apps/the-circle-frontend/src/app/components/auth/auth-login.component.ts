@@ -26,8 +26,10 @@ export class AuthLoginComponent {
     this.errorMessage = '';
 
     this.authService.login(this.formData).subscribe({
-      next: () => {
+      next: (res) => {
         alert('Inloggen gelukt!');
+        localStorage.setItem('access_token', res.token);
+        console.log('Token opgeslagen:');
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {

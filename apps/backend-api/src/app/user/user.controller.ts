@@ -32,7 +32,6 @@ export class UserController {
       @UseGuards(AuthGuard)
     async getCurrent(@Req() req) {
         const user = await this.userService.findById(req.user.userId);
-        console.log('Current user:', user);
         return { rewardSatoshi: user?.rewardSatoshi ?? 0 };
     }
 
