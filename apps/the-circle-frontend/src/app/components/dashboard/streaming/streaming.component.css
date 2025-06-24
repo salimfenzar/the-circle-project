@@ -101,12 +101,18 @@ input[type='text'] {
 }
 
 .sendmsg-btn {
-    padding: 0.5rem 1rem;
-    background: #4caf50;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    opacity: 0.7;
+  padding: 0.5rem 1rem;
+  background: #4caf50;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  opacity: 1; /* standaard volledig zichtbaar */
+  transition: opacity 0.2s ease;
+}
+
+.sendmsg-btn:disabled {
+  opacity: 0.5; /* alleen dimmen als disabled */
+  cursor: not-allowed;
 }
 
 .info-overlay {
