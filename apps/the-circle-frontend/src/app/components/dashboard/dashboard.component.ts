@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../auth/auth.service';
 
@@ -10,13 +10,20 @@ import { AuthService } from '../auth/auth.service';
 export class DashboardComponent implements OnInit {
     followedStreamers: any[] = [];
 
-    constructor(private http: HttpClient, private authService: AuthService) {}
+    constructor(private http: HttpClient, private authService: AuthService, private cdr: ChangeDetectorRef) {}
 
     ngOnInit(): void {
         const userId = this.authService.getCurrentUserId();
         if (userId) {
-            this.http.get<any[]>(`/users/${userId}/followed`).subscribe({
-                next: (streamers) => (this.followedStreamers = streamers),
+            this.http.get<any[]>(`http://localhost:3000/users/${userId}/followed`).subscribe({
+                next: (streamers) => {
+                  console.log('Followed streamers:', streamers);
+                  this.followedStreamers = streamers;
+                  this.cdr.detectChanges();
+                  if (!streamers || streamers.length === 0) {
+                    alert('Je volgt nog geen streamers of er is een probleem met de backend data!');
+                  }
+                },
                 error: (err) => console.error('Kon gevolgde streamers niet ophalen', err),
             });
         }
@@ -28,7 +35,7 @@ export class DashboardComponent implements OnInit {
             alert('Je moet ingelogd zijn om te ontvolgen.');
             return;
         }
-        this.http.post(`/users/${userId}/unfollow/${streamerId}`, {}).subscribe({
+        this.http.post(`http://localhost:3000/users/${userId}/unfollow/${streamerId}`, {}).subscribe({
             next: () => {
                 this.followedStreamers = this.followedStreamers.filter(s => s._id !== streamerId);
                 alert('Je volgt deze streamer niet meer!');

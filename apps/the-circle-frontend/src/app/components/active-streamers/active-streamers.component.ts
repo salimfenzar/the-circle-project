@@ -32,7 +32,7 @@ export class ActiveStreamersComponent implements OnInit {
             alert('Je moet ingelogd zijn om te volgen.');
             return;
         }
-        this.http.post(`https://the-circle-project-1.onrender.com/users/${userId}/follow/${streamerId}`, {}).subscribe({
+        this.http.post(`http://localhost:3000/users/${userId}/follow/${streamerId}`, {}).subscribe({
             next: () => alert('Je volgt deze streamer nu!'),
             error: (err) => alert('Kon streamer niet volgen: ' + err.error?.message || err.message)
         });
@@ -44,7 +44,7 @@ export class ActiveStreamersComponent implements OnInit {
             alert('Je moet ingelogd zijn om te ontvolgen.');
             return;
         }
-        this.http.post(`https://the-circle-project-1.onrender.com/users/${userId}/unfollow/${streamerId}`, {}).subscribe({
+        this.http.post(`http://localhost:3000/users/${userId}/unfollow/${streamerId}`, {}).subscribe({
             next: () => alert('Je volgt deze streamer niet meer!'),
             error: (err) => alert('Kon streamer niet ontvolgen: ' + err.error?.message || err.message)
         });
