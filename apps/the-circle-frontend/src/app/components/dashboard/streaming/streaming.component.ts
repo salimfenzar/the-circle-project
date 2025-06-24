@@ -57,7 +57,6 @@ export class StreamingComponent implements OnInit, AfterViewInit {
             this.streamId = params['id'];
             console.log('Stream ID uit route:', this.streamId);
 
-            // Chatgeschiedenis ophalen
             this.chatService.getMessages(this.streamId).subscribe((msgs) => {
                 this.chatMessages = msgs.reverse();
             });
@@ -69,7 +68,6 @@ export class StreamingComponent implements OnInit, AfterViewInit {
             });
         });
 
-        // Beloning ophalen bij opstart
         this.streamService.getRewardSatoshi().subscribe({
             next: (reward) => {
                 console.log('Reward received from backend:', reward);
@@ -119,7 +117,6 @@ export class StreamingComponent implements OnInit, AfterViewInit {
             });
         }
     }
-
     stop() {
         this.webrtc.stopConnection();
         if (this.localVideo?.nativeElement) {
@@ -133,17 +130,22 @@ export class StreamingComponent implements OnInit, AfterViewInit {
         this.comboMultiplier = 1;
         this.streamDuration = '00:00:00';
         this.streamStartTime = null;
-        this.streamService.stopStream(this.currentStreamId ?? '').subscribe({
+
+        const streamIdToStop = this.currentStreamId; // Bewaar de ID voordat we hem resetten
+        this.currentStreamId = null; // Reset de huidige stream ID
+        this.isStreaming = false;
+
+        this.streamService.stopStream(streamIdToStop ?? '').subscribe({
             next: (stream) => {
                 console.log('Stream stopped:', stream);
+                this.updateSatoshiCount();
             }
         });
-        this.currentStreamId = null; //reset de huidige stream ID
 
-        if (this.currentStreamId) {
+        if (streamIdToStop) {
             this.http
                 .post<any>(
-                    `http://localhost:3000/streams/stop/${this.currentStreamId}`,
+                    `http://localhost:3000/streams/stop/${streamIdToStop}`,
                     {}
                 )
                 .subscribe({
@@ -153,16 +155,13 @@ export class StreamingComponent implements OnInit, AfterViewInit {
                             res.reward,
                             'satoshi'
                         );
-                        this.currentStreamId = null;
-                        this.isStreaming = false;
+                        this.updateSatoshiCount();
                     },
                     error: (err) => {
                         console.error('Stoppen van stream mislukt:', err);
-                        this.isStreaming = false;
+                        this.updateSatoshiCount();
                     }
                 });
-        } else {
-            this.isStreaming = false;
         }
     }
 
@@ -192,7 +191,7 @@ export class StreamingComponent implements OnInit, AfterViewInit {
     startTimer() {
         this.timerInterval = setInterval(() => {
             this.updateStreamDuration();
-        }, 1000); // elke seconde bijwerken
+        }, 1000);
     }
 
     ngAfterViewInit() {
@@ -226,5 +225,17 @@ export class StreamingComponent implements OnInit, AfterViewInit {
         this.chatService.sendMessage(msg);
         this.chatMessages.push({ ...msg, timestamp: new Date().toISOString() });
         this.newMessage = '';
+    }
+
+    private updateSatoshiCount() {
+        this.streamService.getRewardSatoshi().subscribe({
+            next: (reward) => {
+                console.log('Updated satoshi count:', reward);
+                this.rewardSatoshi = reward;
+            },
+            error: (err) => {
+                console.error('Error updating satoshi count:', err);
+            }
+        });
     }
 }
