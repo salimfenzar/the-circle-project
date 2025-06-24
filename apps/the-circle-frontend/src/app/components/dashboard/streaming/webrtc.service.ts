@@ -140,24 +140,26 @@ export class WebRTCService {
     }
 
     async stopConnection() {
+    if (this.peerConnection) {
         this.peerConnection.close();
-
-        if (this.localStream) {
-            this.localStream.getTracks().forEach((track) => track.stop());
-        }
-
-        if (this.remoteStream) {
-            this.remoteStream.getTracks().forEach((track) => track.stop());
-        }
-
-        // not sure if this is needed, stop-broadcast is not implemented in the backend
-        // if (this.isCaller && this.streamId) {
-        //   this.socket.emit('stop-broadcast', { streamId: this.streamId });
-        // }
-
-        this.localStream = null as any;
-        this.remoteStream = null as any;
     }
+
+    if (this.localStream) {
+        this.localStream.getTracks().forEach((track) => track.stop());
+    }
+
+    if (this.remoteStream) {
+        this.remoteStream.getTracks().forEach((track) => track.stop());
+    }
+
+    this.localStream = null as any;
+    this.remoteStream = null as any;
+
+    this.streamStarted = false;
+    this.targetId = null;
+    this.isCaller = false;
+}
+
 
     private async createOffer() {
         await this.startConnection();
