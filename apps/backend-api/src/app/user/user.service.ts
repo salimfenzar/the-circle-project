@@ -4,12 +4,14 @@ import { Model } from 'mongoose';
 import * as mongoose from 'mongoose';
 
 import { User } from './schemas/user.schema';
+import { UserActivityLog } from './schemas/user-activity.log';
 import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(UserActivityLog.name) private userActivityLogModel: Model<UserActivityLog>,
   ) {}
 
   async create(user: any): Promise<User> {
@@ -39,6 +41,12 @@ export class UserService {
       console.error('followStreamer: user not found:', userId);
       return null;
     }
+    // Log the follow action
+    await this.userActivityLogModel.create({
+      userId,
+      action: 'follow',
+      targetUserId: streamerId,
+    });
     const result = await this.userModel.findByIdAndUpdate(
       new mongoose.Types.ObjectId(userId),
       { $addToSet: { followedStreamers: new mongoose.Types.ObjectId(streamerId) } },
@@ -50,6 +58,12 @@ export class UserService {
 
   async unfollowStreamer(userId: string, streamerId: string): Promise<User | null> {
     console.log('unfollowStreamer called with:', { userId, streamerId });
+    // Log the unfollow action
+    await this.userActivityLogModel.create({
+      userId,
+      action: 'unfollow',
+      targetUserId: streamerId,
+    });
     const result = await this.userModel.findByIdAndUpdate(
       new mongoose.Types.ObjectId(userId),
       { $pull: { followedStreamers: new mongoose.Types.ObjectId(streamerId) } },
