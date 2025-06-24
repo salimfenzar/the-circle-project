@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { StreamService } from '../dashboard/streaming/streaming.service';
+import { environment } from 'apps/the-circle-frontend/src/environments/environment';
+
 
 @Component({
     selector: 'avans-nx-workshop-app-active-streamers',
@@ -17,7 +19,7 @@ export class ActiveStreamersComponent implements OnInit {
     constructor(private http: HttpClient, private router: Router, private streamService: StreamService) {}
 
     ngOnInit(): void {
-        this.http.get<any[]>(`http://${window.location.hostname}:3000/streams/active`).subscribe({
+         this.http.get<any[]>(`${environment.dataApiUrl}/streams/active`).subscribe({
             next: (streams) => {
                 this.activeStreams = streams;
             },
