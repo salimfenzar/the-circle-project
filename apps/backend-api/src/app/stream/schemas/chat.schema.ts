@@ -7,6 +7,7 @@ export class ChatMessage extends Document {
   @Prop({ required: true }) userName: string;
   @Prop({ required: true }) text: string;
   @Prop({ required: true }) streamId: string;
+  @Prop({ required: true }) signature: string; // digitale handtekening
 }
 
 export const ChatMessageSchema = SchemaFactory.createForClass(ChatMessage);
